@@ -26,13 +26,13 @@ public final class SplayTree<T extends Comparable<T>> implements Tree<T> {
 	@Override
 	public void insert(T data) throws Exception {
 		WithParentBinaryNode<T> node = new SplayTreeNode<>(data);
-		this.root.fill(insert(this.root, node));
+		this.root.revalue(insert(this.root, node));
 		splay(node);
 	}
 
-	private WithParentBinaryNode<T> insert(Potential<WithParentBinaryNode<T>> root,
-			WithParentBinaryNode<T> node) throws Exception {
-		if (!root.isFilled()) {
+	private WithParentBinaryNode<T> insert(Potential<WithParentBinaryNode<T>> root, WithParentBinaryNode<T> node)
+			throws Exception {
+		if (root.isEmpty()) {
 			return node;
 		}
 		WithParentBinaryNode<T> rootValue = root.value();
@@ -51,10 +51,10 @@ public final class SplayTree<T extends Comparable<T>> implements Tree<T> {
 	}
 
 	private void splay(WithParentBinaryNode<T> node) throws Exception {
-		while (node.parent().isFilled()) {
+		while (node.parent().hasValue()) {
 			WithParentBinaryNode<T> parent = node.parent().value();
-			if (!parent.parent().isFilled()) {
-				if (parent.left().isFilled() && parent.left().value().equals(node)) {
+			if (parent.parent().isEmpty()) {
+				if (parent.left().hasValue() && parent.left().value().equals(node)) {
 					rotateRight(parent);
 				} else {
 					rotateLeft(parent);
@@ -75,44 +75,37 @@ public final class SplayTree<T extends Comparable<T>> implements Tree<T> {
 		}
 	}
 
-	private boolean isLeftZigZig(WithParentBinaryNode<T> parent, WithParentBinaryNode<T> node)
-			throws Exception {
-		return parent.left().isFilled() && parent.left().value().equals(node)
+	private boolean isLeftZigZig(WithParentBinaryNode<T> parent, WithParentBinaryNode<T> node) throws Exception {
+		return parent.left().hasValue() && parent.left().value().equals(node)
 				&& parent.parent().value().left().value().equals(parent);
 	}
 
-	private boolean isRightZigZig(WithParentBinaryNode<T> parent, WithParentBinaryNode<T> node)
-			throws Exception {
-		return parent.right().isFilled() && parent.right().value().equals(node)
-				&& parent.parent().value().right().isFilled()
+	private boolean isRightZigZig(WithParentBinaryNode<T> parent, WithParentBinaryNode<T> node) throws Exception {
+		return parent.right().hasValue() && parent.right().value().equals(node)
 				&& parent.parent().value().right().value().equals(parent);
 	}
 
-	private boolean isRightLeftZigZag(WithParentBinaryNode<T> parent, WithParentBinaryNode<T> node)
-			throws Exception {
-		return parent.left().isFilled() && parent.left().value().equals(node)
-				&& parent.parent().value().right().isFilled()
-				&& parent.parent().value().right().value().equals(parent);
+	private boolean isRightLeftZigZag(WithParentBinaryNode<T> parent, WithParentBinaryNode<T> node) throws Exception {
+		return parent.left().hasValue() && parent.left().value().equals(node)
+				&& parent.parent().value().right().hasValue() && parent.parent().value().right().value().equals(parent);
 	}
 
 	@Override
 	public void delete(T data) {
 		try {
-			Potential<WithParentBinaryNode<T>> deleted = deleted(new Potential<>(this.root).value(),
-					data);
-			boolean newRoot = deleted.isFilled()
-					&& deleted.value().data().compareTo(this.root.value().data()) != 0;
+			Potential<WithParentBinaryNode<T>> deleted = deleted(new Potential<>(this.root).value(), data);
+			boolean newRoot = deleted.hasValue() && deleted.value().data().compareTo(this.root.value().data()) != 0;
 			if (newRoot) {
-				this.root.fill(deleted.value());
+				this.root.revalue(deleted.value());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	private Potential<WithParentBinaryNode<T>> deleted(Potential<WithParentBinaryNode<T>> root,
-			T data) throws Exception {
-		if (!root.isFilled()) {
+	private Potential<WithParentBinaryNode<T>> deleted(Potential<WithParentBinaryNode<T>> root, T data)
+			throws Exception {
+		if (root.isEmpty()) {
 			return root;
 		}
 		WithParentBinaryNode<T> rootValue = root.value();
@@ -121,13 +114,13 @@ public final class SplayTree<T extends Comparable<T>> implements Tree<T> {
 			rootValue.changeLeft(deleted(rootValue.left(), data));
 		} else if (comparisonValue < 0) {
 			rootValue.changeRight(deleted(rootValue.right(), data));
-		} else if (!rootValue.left().isFilled()) {
-			if (rootValue.right().isFilled()) {
+		} else if (rootValue.left().isEmpty()) {
+			if (rootValue.right().hasValue()) {
 				rootValue.right().value().changeParent(rootValue.parent());
 			}
 			root = rootValue.right();
-		} else if (!rootValue.right().isFilled()) {
-			if (rootValue.left().isFilled()) {
+		} else if (rootValue.right().isEmpty()) {
+			if (rootValue.left().hasValue()) {
 				rootValue.left().value().changeParent(rootValue.parent());
 			}
 			root = rootValue.left();
@@ -142,14 +135,13 @@ public final class SplayTree<T extends Comparable<T>> implements Tree<T> {
 	private void rotateLeft(WithParentBinaryNode<T> node) throws Exception {
 		WithParentBinaryNode<T> rightNode = node.right().value();
 		node.changeRight(rightNode.left());
-		if (node.right().isFilled()) {
+		if (node.right().hasValue()) {
 			node.right().value().changeParent(node);
 		}
 		rightNode.changeParent(node.parent());
-		if (!rightNode.parent().isFilled()) {
-			this.root.fill(rightNode);
-		} else if (node.parent().value().left().isFilled()
-				&& node.equals(node.parent().value().left().value())) {
+		if (rightNode.parent().isEmpty()) {
+			this.root.revalue(rightNode);
+		} else if (node.parent().value().left().hasValue() && node.equals(node.parent().value().left().value())) {
 			node.parent().value().changeLeft(rightNode);
 		} else {
 			node.parent().value().changeRight(rightNode);
@@ -162,14 +154,13 @@ public final class SplayTree<T extends Comparable<T>> implements Tree<T> {
 		System.out.println("Rotating to the right = " + node);
 		WithParentBinaryNode<T> leftNode = node.left().value();
 		node.changeLeft(leftNode.right());
-		if (node.left().isFilled()) {
+		if (node.left().hasValue()) {
 			node.left().value().changeParent(node);
 		}
 		leftNode.changeParent(node.parent());
-		if (!leftNode.parent().isFilled()) {
-			this.root.fill(leftNode);
-		} else if (node.parent().value().left().isFilled()
-				&& node.equals(node.parent().value().left().value())) {
+		if (leftNode.parent().isEmpty()) {
+			this.root.revalue(leftNode);
+		} else if (node.parent().value().left().hasValue() && node.equals(node.parent().value().left().value())) {
 			node.parent().value().changeLeft(leftNode);
 		} else {
 			node.parent().value().changeRight(leftNode);
@@ -205,7 +196,7 @@ public final class SplayTree<T extends Comparable<T>> implements Tree<T> {
 	}
 
 	private T min(WithParentBinaryNode<T> root) throws Exception {
-		if (root.left().isFilled()) {
+		if (root.left().hasValue()) {
 			return min(root.left().value());
 		}
 		return root.data();
@@ -217,7 +208,7 @@ public final class SplayTree<T extends Comparable<T>> implements Tree<T> {
 	}
 
 	private T max(WithParentBinaryNode<T> root) throws Exception {
-		if (root.right().isFilled()) {
+		if (root.right().hasValue()) {
 			return max(root.right().value());
 		}
 		return root.data();
@@ -235,11 +226,11 @@ public final class SplayTree<T extends Comparable<T>> implements Tree<T> {
 	}
 
 	private List<T> items(WithParentBinaryNode<T> root, List<T> items) throws Exception {
-		if (root.left().isFilled()) {
+		if (root.left().hasValue()) {
 			items(root.left().value(), items);
 		}
 		items.add(root.data());
-		if (root.right().isFilled()) {
+		if (root.right().hasValue()) {
 			items(root.right().value(), items);
 		}
 		return items;
@@ -256,11 +247,11 @@ public final class SplayTree<T extends Comparable<T>> implements Tree<T> {
 	}
 
 	private void traverse(WithParentBinaryNode<T> root) throws Exception {
-		if (root.left().isFilled()) {
+		if (root.left().hasValue()) {
 			traverse(root.left().value());
 		}
 		System.out.println(root);
-		if (root.right().isFilled()) {
+		if (root.right().hasValue()) {
 			traverse(root.right().value());
 		}
 	}

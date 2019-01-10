@@ -35,22 +35,22 @@ public final class BinaryTreeNode<T extends Comparable<T>> implements BinaryNode
 
     @Override
     public void changeLeft(BinaryNode<T> node) {
-	this.left.fill(node);
+	this.left.revalue(node);
     }
 
     @Override
     public void changeLeft(Potential<BinaryNode<T>> node) {
-	this.left.change(node);
+	this.left.revalue(node);
     }
 
     @Override
     public void changeRight(BinaryNode<T> node) {
-	this.right.fill(node);
+	this.right.revalue(node);
     }
 
     @Override
     public void changeRight(Potential<BinaryNode<T>> node) {
-	this.right.change(node);
+	this.right.revalue(node);
     }
 
     @Override

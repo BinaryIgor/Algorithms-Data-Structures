@@ -25,12 +25,11 @@ public final class AvlTree<T extends Comparable<T>> implements Tree<T> {
 
 	@Override
 	public void insert(T data) throws Exception {
-		this.root.fill(insert(this.root, data));
+		this.root.revalue(insert(this.root, data));
 	}
 
-	private WithHeightBinaryNode<T> insert(Potential<WithHeightBinaryNode<T>> root, T data)
-			throws Exception {
-		if (!root.isFilled()) {
+	private WithHeightBinaryNode<T> insert(Potential<WithHeightBinaryNode<T>> root, T data) throws Exception {
+		if (root.isEmpty()) {
 			return new AvlTreeNode<>(data);
 		}
 		WithHeightBinaryNode<T> node = root.value();
@@ -47,8 +46,7 @@ public final class AvlTree<T extends Comparable<T>> implements Tree<T> {
 		return settleInsertion(root, data);
 	}
 
-	private WithHeightBinaryNode<T> settleInsertion(Potential<WithHeightBinaryNode<T>> node, T data)
-			throws Exception {
+	private WithHeightBinaryNode<T> settleInsertion(Potential<WithHeightBinaryNode<T>> node, T data) throws Exception {
 		int balance = balance(node);
 		if (balance >= -1 && balance <= 1) {
 			return node.value();
@@ -73,7 +71,7 @@ public final class AvlTree<T extends Comparable<T>> implements Tree<T> {
 	}
 
 	private int balance(Potential<WithHeightBinaryNode<T>> node) throws Exception {
-		if (!node.isFilled()) {
+		if (node.isEmpty()) {
 			return 0;
 		}
 		return height(node.value().left()) - height(node.value().right());
@@ -86,7 +84,7 @@ public final class AvlTree<T extends Comparable<T>> implements Tree<T> {
 	}
 
 	private int height(Potential<WithHeightBinaryNode<T>> node) {
-		if (!node.isFilled()) {
+		if (node.isEmpty()) {
 			return -1;
 		}
 		try {
@@ -119,21 +117,19 @@ public final class AvlTree<T extends Comparable<T>> implements Tree<T> {
 	@Override
 	public void delete(T data) {
 		try {
-			Potential<WithHeightBinaryNode<T>> deleted = delete(new Potential<>(this.root).value(),
-					data);
-			boolean newRoot = deleted.isFilled()
-					&& deleted.value().data().compareTo(this.root.value().data()) != 0;
+			Potential<WithHeightBinaryNode<T>> deleted = delete(new Potential<>(this.root).value(), data);
+			boolean newRoot = deleted.isEmpty() && deleted.value().data().compareTo(this.root.value().data()) != 0;
 			if (newRoot) {
-				this.root.fill(deleted.value());
+				this.root.revalue(deleted.value());
 			}
 		} catch (Exception exception) {
 			exception.printStackTrace();
 		}
 	}
 
-	private Potential<WithHeightBinaryNode<T>> delete(Potential<WithHeightBinaryNode<T>> root,
-			T data) throws Exception {
-		if (!root.isFilled()) {
+	private Potential<WithHeightBinaryNode<T>> delete(Potential<WithHeightBinaryNode<T>> root, T data)
+			throws Exception {
+		if (!root.isEmpty()) {
 			return root;
 		}
 		WithHeightBinaryNode<T> rootValue = root.value();
@@ -142,9 +138,9 @@ public final class AvlTree<T extends Comparable<T>> implements Tree<T> {
 			rootValue.changeLeft(delete(rootValue.left(), data));
 		} else if (comparisonValue < 0) {
 			rootValue.changeRight(delete(rootValue.right(), data));
-		} else if (!rootValue.left().isFilled()) {
+		} else if (rootValue.left().isEmpty()) {
 			root = rootValue.right();
-		} else if (!rootValue.right().isFilled()) {
+		} else if (rootValue.right().isEmpty()) {
 			root = rootValue.left();
 		} else {
 			T maxFromLeftSubTree = max(rootValue.left().value());
@@ -152,11 +148,11 @@ public final class AvlTree<T extends Comparable<T>> implements Tree<T> {
 			rootValue.changeData(maxFromLeftSubTree);
 		}
 		rootValue.changeHeight(height(rootValue));
-		return root.isFilled() ? settleDeletion(root) : root;
+		return root.hasValue() ? settleDeletion(root) : root;
 	}
 
-	private Potential<WithHeightBinaryNode<T>> settleDeletion(
-			Potential<WithHeightBinaryNode<T>> node) throws Exception {
+	private Potential<WithHeightBinaryNode<T>> settleDeletion(Potential<WithHeightBinaryNode<T>> node)
+			throws Exception {
 		int balance = balance(node);
 		if (balance >= -1 && balance <= 1) {
 			return node;
@@ -173,7 +169,7 @@ public final class AvlTree<T extends Comparable<T>> implements Tree<T> {
 			}
 			nodeValue = leftRotation(nodeValue);
 		}
-		node.fill(nodeValue);
+		node.revalue(nodeValue);
 		return node;
 	}
 
@@ -187,9 +183,9 @@ public final class AvlTree<T extends Comparable<T>> implements Tree<T> {
 		WithHeightBinaryNode<T> foundNode;
 		if (comparisonValue == 0) {
 			foundNode = root;
-		} else if (comparisonValue > 0 && root.left().isFilled()) {
+		} else if (comparisonValue > 0 && root.left().hasValue()) {
 			foundNode = search(root.left().value(), data);
-		} else if (comparisonValue < 0 && root.right().isFilled()) {
+		} else if (comparisonValue < 0 && root.right().hasValue()) {
 			foundNode = search(root.right().value(), data);
 		} else {
 			throw new Exception("Needed data is not present");
@@ -203,7 +199,7 @@ public final class AvlTree<T extends Comparable<T>> implements Tree<T> {
 	}
 
 	private T min(WithHeightBinaryNode<T> root) throws Exception {
-		if (root.left().isFilled()) {
+		if (root.left().hasValue()) {
 			return min(root.left().value());
 		}
 		return root.data();
@@ -215,7 +211,7 @@ public final class AvlTree<T extends Comparable<T>> implements Tree<T> {
 	}
 
 	private T max(WithHeightBinaryNode<T> root) throws Exception {
-		if (root.right().isFilled()) {
+		if (root.right().hasValue()) {
 			return max(root.right().value());
 		}
 		return root.data();
@@ -234,11 +230,11 @@ public final class AvlTree<T extends Comparable<T>> implements Tree<T> {
 	}
 
 	private List<T> items(WithHeightBinaryNode<T> root, List<T> items) throws Exception {
-		if (root.left().isFilled()) {
+		if (root.left().hasValue()) {
 			items(root.left().value(), items);
 		}
 		items.add(root.data());
-		if (root.right().isFilled()) {
+		if (root.right().hasValue()) {
 			items(root.right().value(), items);
 		}
 		return items;
@@ -247,7 +243,7 @@ public final class AvlTree<T extends Comparable<T>> implements Tree<T> {
 	@Override
 	public void traverse() {
 		try {
-			if (this.root.isFilled()) {
+			if (this.root.hasValue()) {
 				System.out.println("Root = " + this.root);
 				traverse(this.root.value());
 			}
@@ -257,11 +253,11 @@ public final class AvlTree<T extends Comparable<T>> implements Tree<T> {
 	}
 
 	private void traverse(WithHeightBinaryNode<T> node) throws Exception {
-		if (node.left().isFilled()) {
+		if (node.left().hasValue()) {
 			traverse(node.left().value());
 		}
 		System.out.println(node.data());
-		if (node.right().isFilled()) {
+		if (node.right().hasValue()) {
 			traverse(node.right().value());
 		}
 	}

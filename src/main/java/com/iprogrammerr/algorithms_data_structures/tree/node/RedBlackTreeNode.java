@@ -61,12 +61,12 @@ public final class RedBlackTreeNode<T extends Comparable<T>> implements ColoredB
 
 	@Override
 	public void changeLeft(Potential<ColoredBinaryNode<T>> node) {
-		this.left.change(node);
+		this.left.revalue(node);
 	}
 
 	@Override
 	public void changeLeft(ColoredBinaryNode<T> node) {
-		this.left.fill(node);
+		this.left.revalue(node);
 	}
 
 	@Override
@@ -76,12 +76,12 @@ public final class RedBlackTreeNode<T extends Comparable<T>> implements ColoredB
 
 	@Override
 	public void changeRight(Potential<ColoredBinaryNode<T>> node) {
-		this.right.change(node);
+		this.right.revalue(node);
 	}
 
 	@Override
 	public void changeRight(ColoredBinaryNode<T> node) {
-		this.right.fill(node);
+		this.right.revalue(node);
 	}
 
 	@Override
@@ -91,12 +91,12 @@ public final class RedBlackTreeNode<T extends Comparable<T>> implements ColoredB
 
 	@Override
 	public void changeParent(ColoredBinaryNode<T> node) {
-		this.parent.fill(node);
+		this.parent.revalue(node);
 	}
 
 	@Override
 	public void changeParent(Potential<ColoredBinaryNode<T>> node) {
-		this.parent.change(node);
+		this.parent.revalue(node);
 	}
 
 }

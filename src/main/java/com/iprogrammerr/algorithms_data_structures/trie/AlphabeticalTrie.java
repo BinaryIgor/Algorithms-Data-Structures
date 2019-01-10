@@ -48,7 +48,7 @@ public class AlphabeticalTrie implements Trie {
 			char c = word.charAt(i);
 			int index = c - 'a';
 			if (tmp.children()[index] == null) {
-				throw new Exception(String.format("There is not any node associated with %s word", word));
+				throw new Exception(String.format("There is no any node associated with %s word", word));
 			} else {
 				tmp = tmp.children()[index];
 			}

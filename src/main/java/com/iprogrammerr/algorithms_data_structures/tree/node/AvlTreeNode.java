@@ -38,12 +38,12 @@ public final class AvlTreeNode<T extends Comparable<T>> implements WithHeightBin
 
     @Override
     public void changeLeft(WithHeightBinaryNode<T> node) {
-	this.left.fill(node);
+	this.left.revalue(node);
     }
 
     @Override
     public void changeLeft(Potential<WithHeightBinaryNode<T>> node) {
-	this.left.change(node);
+	this.left.revalue(node);
     }
 
     @Override
@@ -53,12 +53,12 @@ public final class AvlTreeNode<T extends Comparable<T>> implements WithHeightBin
 
     @Override
     public void changeRight(Potential<WithHeightBinaryNode<T>> node) {
-	this.right.change(node);
+	this.right.revalue(node);
     }
 
     @Override
     public void changeRight(WithHeightBinaryNode<T> node) {
-	this.right.fill(node);
+	this.right.revalue(node);
     }
 
     @Override

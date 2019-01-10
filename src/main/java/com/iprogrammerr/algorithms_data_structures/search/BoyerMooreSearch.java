@@ -22,7 +22,8 @@ public final class BoyerMooreSearch implements StringSearch {
 				int j;
 				for (j = pattern.length() - 1; j >= 0; --j) {
 					if (this.source.charAt(i + j) != pattern.charAt(j)) {
-						shift = charsShifts.containsKey(pattern.charAt(j)) ? charsShifts.get(pattern.charAt(j))
+						shift = charsShifts.containsKey(this.source.charAt(i + j))
+								? charsShifts.get(this.source.charAt(i + j))
 								: pattern.length();
 						break;
 					}

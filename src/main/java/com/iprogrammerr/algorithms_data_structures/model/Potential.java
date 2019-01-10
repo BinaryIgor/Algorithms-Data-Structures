@@ -12,18 +12,14 @@ public final class Potential<T> {
 		this(null);
 	}
 
-	public void fill(T value) {
+	public void revalue(T value) {
 		this.value = value;
 	}
 
-	public void change(Potential<T> potential) {
-		try {
-			if (potential.isFilled()) {
-				this.value = potential.value;
-			} else {
-				empty();
-			}
-		} catch (Exception e) {
+	public void revalue(Potential<T> potential) {
+		if (potential.hasValue()) {
+			this.value = potential.value;
+		} else {
 			empty();
 		}
 	}
@@ -35,7 +31,11 @@ public final class Potential<T> {
 		return this.value;
 	}
 
-	public boolean isFilled() {
+	public boolean isEmpty() {
+		return this.value == null;
+	}
+
+	public boolean hasValue() {
 		return this.value != null;
 	}
 
@@ -57,10 +57,8 @@ public final class Potential<T> {
 			equal = true;
 		} else {
 			Potential<T> other = (Potential<T>) object;
-			equal = (!isFilled() && !other.isFilled())
-					|| (isFilled() && this.value.equals(other.value));
+			equal = (!isEmpty() && !other.isEmpty()) || (isEmpty() && this.value.equals(other.value));
 		}
 		return equal;
 	}
-
 }

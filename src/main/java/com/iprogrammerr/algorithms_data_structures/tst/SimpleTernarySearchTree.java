@@ -17,7 +17,7 @@ public final class SimpleTernarySearchTree<T> implements TernarySearchTree<T> {
 		if (c < node.character()) {
 			node.setLeft(put(node.left(), key, value, index));
 		} else if (c > node.character()) {
-			node.setRight(put(node.left(), key, value, index));
+			node.setRight(put(node.right(), key, value, index));
 		} else if (index < key.length() - 1) {
 			node.setMiddle(put(node.middle(), key, value, index + 1));
 		} else {

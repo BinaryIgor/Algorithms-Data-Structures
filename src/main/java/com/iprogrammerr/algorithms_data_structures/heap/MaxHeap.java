@@ -73,7 +73,7 @@ public final class MaxHeap<T extends Comparable<T>> implements Heap<T> {
 
 	private void delete(int index) throws Exception {
 		if (isEmpty()) {
-			throw new Exception("Can not delete from empty heap");
+			throw new Exception("Can not delete from an empty heap");
 		}
 		int parent = parent(index);
 		heap[index] = heap[size - 1];

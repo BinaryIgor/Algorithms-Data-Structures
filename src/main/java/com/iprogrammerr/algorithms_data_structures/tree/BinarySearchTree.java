@@ -25,11 +25,11 @@ public final class BinarySearchTree<T extends Comparable<T>> implements Tree<T> 
 
 	@Override
 	public void insert(T data) throws Exception {
-		this.root.fill(insert(this.root, data));
+		this.root.revalue(insert(this.root, data));
 	}
 
 	private BinaryNode<T> insert(Potential<BinaryNode<T>> root, T data) throws Exception {
-		if (!root.isFilled()) {
+		if (!root.isEmpty()) {
 			return new BinaryTreeNode<>(data);
 		}
 		BinaryNode<T> node = root.value();
@@ -55,9 +55,9 @@ public final class BinarySearchTree<T extends Comparable<T>> implements Tree<T> 
 		BinaryNode<T> foundNode;
 		if (comparisonValue == 0) {
 			foundNode = root;
-		} else if (comparisonValue > 0 && root.left().isFilled()) {
+		} else if (comparisonValue > 0 && root.left().isEmpty()) {
 			foundNode = search(root.left().value(), data);
-		} else if (comparisonValue < 0 && root.right().isFilled()) {
+		} else if (comparisonValue < 0 && root.right().isEmpty()) {
 			foundNode = search(root.right().value(), data);
 		} else {
 			throw new Exception("Needed data is not present");
@@ -69,10 +69,10 @@ public final class BinarySearchTree<T extends Comparable<T>> implements Tree<T> 
 	public void delete(T data) {
 		try {
 			Potential<BinaryNode<T>> deleted = delete(new Potential<>(this.root).value(), data);
-			boolean newRoot = deleted.isFilled()
+			boolean newRoot = deleted.isEmpty()
 					&& deleted.value().data().compareTo(this.root.value().data()) != 0;
 			if (newRoot) {
-				this.root.fill(deleted.value());
+				this.root.revalue(deleted.value());
 			}
 		} catch (Exception exception) {
 			exception.printStackTrace();
@@ -81,7 +81,7 @@ public final class BinarySearchTree<T extends Comparable<T>> implements Tree<T> 
 
 	private Potential<BinaryNode<T>> delete(Potential<BinaryNode<T>> root, T data)
 			throws Exception {
-		if (!root.isFilled()) {
+		if (!root.isEmpty()) {
 			return root;
 		}
 		BinaryNode<T> rootValue = root.value();
@@ -90,9 +90,9 @@ public final class BinarySearchTree<T extends Comparable<T>> implements Tree<T> 
 			rootValue.changeLeft(delete(rootValue.left(), data));
 		} else if (comparisonValue < 0) {
 			rootValue.changeRight(delete(rootValue.right(), data));
-		} else if (!rootValue.left().isFilled()) {
+		} else if (!rootValue.left().isEmpty()) {
 			root = rootValue.right();
-		} else if (!rootValue.right().isFilled()) {
+		} else if (!rootValue.right().isEmpty()) {
 			root = rootValue.left();
 		} else {
 			T maxFromLeftSubTree = max(rootValue.left().value());
@@ -115,11 +115,11 @@ public final class BinarySearchTree<T extends Comparable<T>> implements Tree<T> 
 	}
 
 	private List<T> items(BinaryNode<T> root, List<T> items) throws Exception {
-		if (root.left().isFilled()) {
+		if (root.left().isEmpty()) {
 			items(root.left().value(), items);
 		}
 		items.add(root.data());
-		if (root.right().isFilled()) {
+		if (root.right().isEmpty()) {
 			items(root.right().value(), items);
 		}
 		return items;
@@ -131,7 +131,7 @@ public final class BinarySearchTree<T extends Comparable<T>> implements Tree<T> 
 	}
 
 	private T min(BinaryNode<T> root) throws Exception {
-		if (root.left().isFilled()) {
+		if (root.left().isEmpty()) {
 			return min(root.left().value());
 		}
 		return root.data();
@@ -143,7 +143,7 @@ public final class BinarySearchTree<T extends Comparable<T>> implements Tree<T> 
 	}
 
 	private T max(BinaryNode<T> root) throws Exception {
-		if (root.right().isFilled()) {
+		if (root.right().isEmpty()) {
 			return max(root.right().value());
 		}
 		return root.data();
@@ -152,7 +152,7 @@ public final class BinarySearchTree<T extends Comparable<T>> implements Tree<T> 
 	@Override
 	public void traverse() {
 		try {
-			if (this.root.isFilled()) {
+			if (this.root.isEmpty()) {
 				traverse(this.root.value());
 			}
 		} catch (Exception exception) {
@@ -161,11 +161,11 @@ public final class BinarySearchTree<T extends Comparable<T>> implements Tree<T> 
 	}
 
 	private void traverse(BinaryNode<T> node) throws Exception {
-		if (node.left().isFilled()) {
+		if (node.left().isEmpty()) {
 			traverse(node.left().value());
 		}
 		System.out.println(node.data());
-		if (node.right().isFilled()) {
+		if (node.right().isEmpty()) {
 			traverse(node.right().value());
 		}
 	}

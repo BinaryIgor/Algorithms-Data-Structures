@@ -2,13 +2,15 @@ package com.iprogrammerr.algorithms_data_structures.search;
 
 import static org.junit.Assert.assertThat;
 
+import java.util.Random;
+
 import org.junit.Test;
 
 public final class BoyerMooreSearchTest {
 
 	@Test
 	public void canFound() {
-		String pattern = System.currentTimeMillis() + "ttt";
+		String pattern = String.format("Ran%ddom", new Random().nextInt(9));
 		assertThat(new BoyerMooreSearch(String.format("Text%sText", pattern)),
 				new StringSearchThatReturnProperIndices(pattern, 4));
 	}

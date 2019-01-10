@@ -38,12 +38,12 @@ public final class SplayTreeNode<T extends Comparable<T>> implements WithParentB
 
     @Override
     public void changeParent(WithParentBinaryNode<T> node) {
-	this.parent.fill(node);
+	this.parent.revalue(node);
     }
 
     @Override
     public void changeParent(Potential<WithParentBinaryNode<T>> node) {
-	this.parent.change(node);
+	this.parent.revalue(node);
     }
 
     @Override
@@ -53,12 +53,12 @@ public final class SplayTreeNode<T extends Comparable<T>> implements WithParentB
 
     @Override
     public void changeLeft(WithParentBinaryNode<T> node) {
-	this.left.fill(node);
+	this.left.revalue(node);
     }
 
     @Override
     public void changeLeft(Potential<WithParentBinaryNode<T>> node) {
-	this.left.change(node);
+	this.left.revalue(node);
     }
 
     @Override
@@ -68,12 +68,12 @@ public final class SplayTreeNode<T extends Comparable<T>> implements WithParentB
 
     @Override
     public void changeRight(WithParentBinaryNode<T> node) {
-	this.right.fill(node);
+	this.right.revalue(node);
     }
 
     @Override
     public void changeRight(Potential<WithParentBinaryNode<T>> node) {
-	this.right.change(node);
+	this.right.revalue(node);
     }
 
     @Override

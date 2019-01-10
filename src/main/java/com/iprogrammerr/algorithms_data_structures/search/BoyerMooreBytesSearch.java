@@ -22,9 +22,9 @@ public final class BoyerMooreBytesSearch implements BytesSearch {
 				int j;
 				for (j = pattern.length - 1; j >= 0; --j) {
 					if (this.source[i + j] != pattern[j]) {
-						shift = bytesShifts.containsKey(pattern[j]) ? bytesShifts.get(pattern[j]) : pattern.length;
+						shift = bytesShifts.containsKey(this.source[i + j]) ? bytesShifts.get(this.source[i + j])
+								: pattern.length;
 						break;
-
 					}
 				}
 				if (j == -1) {

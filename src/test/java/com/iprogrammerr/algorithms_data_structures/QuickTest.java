@@ -6,7 +6,6 @@ public final class QuickTest {
 
 	@Test
 	public void shiftingTest() {
-		System.out.println((2 << 13));
-		System.out.println(16 << 10);
+
 	}
 }

@@ -29,12 +29,12 @@ public final class PostfixExpression implements Expression<Double> {
 			if (se[i].isEmpty()) {
 				continue;
 			}
-			if (Character.isDigit(se[i].charAt(0))
-					|| (se[i].length() > 1 && se[i].charAt(0) == '-')) {
+			if (Character.isDigit(se[i].charAt(0)) || (se[i].length() > 1 && se[i].charAt(0) == '-')) {
 				this.values.push(Double.parseDouble(se[i].replaceAll(",", ".")));
 			} else {
 				double first = this.values.pop();
 				double second = this.values.pop();
+				System.out.println(String.format("first: %.3f, second: %.3f", first, second));
 				char op = se[i].charAt(0);
 				if (op == '+') {
 					this.values.push(first + second);
