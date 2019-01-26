@@ -18,6 +18,7 @@ public final class TopologicalOrdering<T> {
 		root.visit();
 		for (VertexWithData<T> v : root.neighbors()) {
 			if (!v.visited()) {
+				v.visit();
 				traverse(v, stack);
 			}
 		}

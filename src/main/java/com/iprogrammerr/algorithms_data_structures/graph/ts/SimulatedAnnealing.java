@@ -20,7 +20,7 @@ public final class SimulatedAnnealing {
 	}
 
 	public SimulatedAnnealing(List<City> source, Random random) {
-		this(source, random, 10_000, 0.003);
+		this(source, random, 10_000, 0.001);
 	}
 
 	public SimulatedAnnealing(List<City> source) {

@@ -1,21 +1,15 @@
 package com.iprogrammerr.algorithms_data_structures.graph;
 
-import java.util.List;
-
 public final class CycleDetection<T> {
 
-	private final List<VisitableVertex<T>> vertices;
+	private final VisitableVertex<T> root;
 
-	public CycleDetection(List<VisitableVertex<T>> vertices) {
-		this.vertices = vertices;
+	public CycleDetection(VisitableVertex<T> root) {
+		this.root = root;
 	}
 
 	public void detect() {
-		for (VisitableVertex<T> v : this.vertices) {
-			if (!v.visited()) {
-				dfs(v);
-			}
-		}
+		dfs(this.root);
 	}
 
 	private void dfs(VisitableVertex<T> root) {
