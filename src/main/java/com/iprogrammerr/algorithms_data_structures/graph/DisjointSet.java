@@ -14,8 +14,9 @@ public final class DisjointSet {
 		VertexWithRank root = root(vertex);
 		VertexWithRank current = vertex;
 		while (current != root) {
+			VertexWithRank tmp = current.parent();
 			current.changeParent(root);
-			current = current.parent();
+			current = tmp;
 		}
 		return root.id();
 	}

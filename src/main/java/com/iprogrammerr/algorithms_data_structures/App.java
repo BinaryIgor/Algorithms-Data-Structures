@@ -1,21 +1,21 @@
 package com.iprogrammerr.algorithms_data_structures;
 
-import com.iprogrammerr.algorithms_data_structures.graph.CycleDetection;
-import com.iprogrammerr.algorithms_data_structures.graph.VisitableVertex;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.iprogrammerr.algorithms_data_structures.graph.ts.City;
+import com.iprogrammerr.algorithms_data_structures.graph.ts.SimulatedAnnealing;
+import com.iprogrammerr.algorithms_data_structures.graph.ts.Tour;
 
 public class App {
 
 	public static void main(String[] args) throws Exception {
-		VisitableVertex<Integer> v1 = new VisitableVertex<>(1);
-		VisitableVertex<Integer> v2 = new VisitableVertex<>(2);
-		VisitableVertex<Integer> v3 = new VisitableVertex<>(3);
-		VisitableVertex<Integer> v4 = new VisitableVertex<>(4);
-		VisitableVertex<Integer> v5 = new VisitableVertex<>(5);
-		VisitableVertex<Integer> v6 = new VisitableVertex<>(6);
-		v1.addNeighbors(v2);
-		v2.addNeighbors(v3, v4);
-		v3.addNeighbors(v4, v5);
-		v4.addNeighbors(v3, v6);
-		new CycleDetection<>(v1).detect();
+		int size = 10_000;
+		List<City> cities = new ArrayList<>(size);
+		for (int i = 0; i < size; ++i) {
+			cities.add(new City());
+		}
+		Tour solution = new SimulatedAnnealing(cities).solution();
+		System.out.println(String.format("Found solution: %.3f", solution.distance()));
 	}
 }
