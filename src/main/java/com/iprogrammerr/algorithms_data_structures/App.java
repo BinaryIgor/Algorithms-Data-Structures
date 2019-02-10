@@ -1,14 +1,15 @@
 package com.iprogrammerr.algorithms_data_structures;
 
-import com.iprogrammerr.algorithms_data_structures.graph.as.Anode;
-import com.iprogrammerr.algorithms_data_structures.graph.as.AstarAlgorithm;
+import java.util.Arrays;
+import java.util.Random;
+
+import com.iprogrammerr.algorithms_data_structures.search.StochasticSearch;
 
 public class App {
 
 	public static void main(String[] args) throws Exception {
-		AstarAlgorithm algorithm = new AstarAlgorithm();
-		for (Anode node : algorithm.path()) {
-			System.out.println(node);
-		}
+		StochasticSearch<String> search = new StochasticSearch<>(new Random(), true, 2);
+		String min = search.value(Arrays.asList("b", "ded", "a", "gz", "ji"));
+		System.out.println(String.format("min = %s", min));
 	}
 }
