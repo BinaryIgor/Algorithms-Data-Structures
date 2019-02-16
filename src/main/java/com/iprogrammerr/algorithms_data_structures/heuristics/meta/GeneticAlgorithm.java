@@ -11,6 +11,7 @@ public final class GeneticAlgorithm {
 	private static final double MUTATION_RATE = CROSSOVER_RATE / 5;
 	private final int randomPopulation;
 	private final Random random;
+
 	private final Population base;
 	private final int[] adapted;
 	private final Initialization<Integer> maxGene;
