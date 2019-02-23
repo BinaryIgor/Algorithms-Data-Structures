@@ -5,14 +5,12 @@ import com.iprogrammerr.algorithms_data_structures.initialization.StickyInitiali
 
 public final class Perceptron {
 
-	private final ActivationFunction function;
 	private final double learningRate;
 	private final double[][] input;
 	private final double[] output;
 	private final Initialization<double[]> weights;
 
-	public Perceptron(ActivationFunction function, double learningRate, double[][] input, double[] output) {
-		this.function = function;
+	public Perceptron(double learningRate, double[][] input, double[] output) {
 		this.learningRate = learningRate;
 		this.input = input;
 		this.output = output;
@@ -23,15 +21,6 @@ public final class Perceptron {
 			}
 			return weights;
 		});
-	}
-
-	public Perceptron(double learningRate, double[][] input, double[] output) {
-		this((a) -> {
-			if (a >= 1) {
-				return 1;
-			}
-			return 0;
-		}, learningRate, input, output);
 	}
 
 	public Perceptron(double[][] input, double[] output) {
@@ -64,6 +53,6 @@ public final class Perceptron {
 		for (int i = 0; i < input.length; ++i) {
 			sum = sum + this.weights.value()[i] * input[i];
 		}
-		return this.function.value(sum);
+		return ActivationFunctions.step(sum);
 	}
 }

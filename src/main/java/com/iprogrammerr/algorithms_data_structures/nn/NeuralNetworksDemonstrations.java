@@ -1,5 +1,7 @@
 package com.iprogrammerr.algorithms_data_structures.nn;
 
+import java.util.Random;
+
 public final class NeuralNetworksDemonstrations {
 
 	public static void and() {
@@ -20,5 +22,33 @@ public final class NeuralNetworksDemonstrations {
 
 	public static void or() {
 		logicalProblem(false);
+	}
+
+	public static void and(int iterations) {
+		multiLayerLogical(iterations, new double[][] { { 0 }, { 0 }, { 0 }, { 1 } });
+	}
+
+	private static void multiLayerLogical(int iterations, double[][] results) {
+		double[][] training = new double[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } };
+		BackpropagationNeuralNetwork network = new BackpropagationNeuralNetwork(2, 3, 1, new Random());
+		for (int i = 0; i < iterations; ++i) {
+			for (int j = 0; j < results.length; ++j) {
+				network.train(training[j], results[j]);
+			}
+			System.out.println();
+			for (int j = 0; j < results.length; ++j) {
+				double[] t = training[j];
+				System.out.println(String.format("Num of iterations: %d", i + 1));
+				System.out.println(String.format("%.1f, %.1f --> %.3f", t[0], t[1], network.run(t)[0]));
+			}
+		}
+	}
+
+	public static void or(int iterations) {
+		multiLayerLogical(iterations, new double[][] { { 0 }, { 1 }, { 1 }, { 1 } });
+	}
+
+	public static void xor(int iterations) {
+		multiLayerLogical(iterations, new double[][] { { 0 }, { 1 }, { 1 }, { 0 } });
 	}
 }
