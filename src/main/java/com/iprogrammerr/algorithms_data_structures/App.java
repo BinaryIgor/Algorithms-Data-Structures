@@ -5,6 +5,6 @@ import com.iprogrammerr.algorithms_data_structures.nn.NeuralNetworksDemonstratio
 public class App {
 
 	public static void main(String[] args) throws Exception {
-		NeuralNetworksDemonstrations.xor(150_000);
+		NeuralNetworksDemonstrations.ocr(1000);
 	}
 }
