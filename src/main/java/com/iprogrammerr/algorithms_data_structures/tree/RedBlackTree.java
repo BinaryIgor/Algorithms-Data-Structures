@@ -168,7 +168,7 @@ public final class RedBlackTree<T extends Comparable<T>> implements Tree<T> {
 				this.root.revalue(deleted.value());
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -312,9 +312,9 @@ public final class RedBlackTree<T extends Comparable<T>> implements Tree<T> {
 
 	private Potential<ColoredBinaryNode<T>> sibling(ColoredBinaryNode<T> node) {
 		Potential<ColoredBinaryNode<T>> sibling;
-		if (node.parent().value().left().isEmpty() && !node.parent().value().left().value().equals(node)) {
+		if (node.parent().value().left().hasValue() && !node.parent().value().left().value().equals(node)) {
 			sibling = node.parent().value().left();
-		} else if (node.parent().value().right().isEmpty() && !node.parent().value().right().value().equals(node)) {
+		} else if (node.parent().value().right().hasValue() && !node.parent().value().right().value().equals(node)) {
 			sibling = node.parent().value().right();
 		} else {
 			sibling = new Potential<>();
@@ -332,9 +332,9 @@ public final class RedBlackTree<T extends Comparable<T>> implements Tree<T> {
 		ColoredBinaryNode<T> foundNode;
 		if (comparisonValue == 0) {
 			foundNode = root;
-		} else if (comparisonValue > 0 && root.left().isEmpty()) {
+		} else if (comparisonValue > 0 && root.left().hasValue()) {
 			foundNode = search(root.left().value(), data);
-		} else if (comparisonValue < 0 && root.right().isEmpty()) {
+		} else if (comparisonValue < 0 && root.right().hasValue()) {
 			foundNode = search(root.right().value(), data);
 		} else {
 			throw new Exception("Needed data is not present");
@@ -348,7 +348,7 @@ public final class RedBlackTree<T extends Comparable<T>> implements Tree<T> {
 	}
 
 	private T min(ColoredBinaryNode<T> root) throws Exception {
-		if (root.left().isEmpty()) {
+		if (root.left().hasValue()) {
 			return min(root.left().value());
 		}
 		return root.data();
@@ -360,7 +360,7 @@ public final class RedBlackTree<T extends Comparable<T>> implements Tree<T> {
 	}
 
 	private T max(ColoredBinaryNode<T> root) throws Exception {
-		if (root.right().isEmpty()) {
+		if (root.right().hasValue()) {
 			return max(root.right().value());
 		}
 		return root.data();
@@ -372,18 +372,17 @@ public final class RedBlackTree<T extends Comparable<T>> implements Tree<T> {
 		try {
 			items = items(this.root.value(), items);
 		} catch (Exception exception) {
-			exception.printStackTrace();
-			items.clear();
+			throw new RuntimeException(exception);
 		}
 		return items;
 	}
 
 	private List<T> items(ColoredBinaryNode<T> root, List<T> items) throws Exception {
-		if (root.left().isEmpty()) {
+		if (root.left().hasValue()) {
 			items(root.left().value(), items);
 		}
 		items.add(root.data());
-		if (root.right().isEmpty()) {
+		if (root.right().hasValue()) {
 			items(root.right().value(), items);
 		}
 		return items;
@@ -392,7 +391,7 @@ public final class RedBlackTree<T extends Comparable<T>> implements Tree<T> {
 	@Override
 	public void traverse() {
 		try {
-			if (this.root.isEmpty()) {
+			if (this.root.hasValue()) {
 				System.out.println("Root = " + this.root);
 				traverse(this.root.value());
 			}
@@ -402,11 +401,11 @@ public final class RedBlackTree<T extends Comparable<T>> implements Tree<T> {
 	}
 
 	private void traverse(ColoredBinaryNode<T> node) throws Exception {
-		if (node.left().isEmpty()) {
+		if (node.left().hasValue()) {
 			traverse(node.left().value());
 		}
 		System.out.println(node);
-		if (node.right().isEmpty()) {
+		if (node.right().hasValue()) {
 			traverse(node.right().value());
 		}
 	}

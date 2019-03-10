@@ -142,7 +142,6 @@ public final class MaxHeap<T extends Comparable<T>> implements Heap<T> {
 			heap[lastHeapIndex - i] = tmp;
 			fixHeapBelow(0, lastHeapIndex - i);
 		}
-
 		this.heap = origin;
 		return Arrays.copyOf(sorted, size);
 	}

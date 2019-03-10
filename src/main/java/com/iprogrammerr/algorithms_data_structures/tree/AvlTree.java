@@ -19,7 +19,7 @@ public final class AvlTree<T extends Comparable<T>> implements Tree<T> {
 		this(new Potential<>(new AvlTreeNode<>(data)));
 	}
 
-	public AvlTree() {
+	public AvlTree(int balanceThreshold) {
 		this(new Potential<>());
 	}
 
@@ -118,18 +118,18 @@ public final class AvlTree<T extends Comparable<T>> implements Tree<T> {
 	public void delete(T data) {
 		try {
 			Potential<WithHeightBinaryNode<T>> deleted = delete(new Potential<>(this.root).value(), data);
-			boolean newRoot = deleted.isEmpty() && deleted.value().data().compareTo(this.root.value().data()) != 0;
+			boolean newRoot = deleted.hasValue() && deleted.value().data().compareTo(this.root.value().data()) != 0;
 			if (newRoot) {
 				this.root.revalue(deleted.value());
 			}
 		} catch (Exception exception) {
-			exception.printStackTrace();
+			throw new RuntimeException(exception);
 		}
 	}
 
 	private Potential<WithHeightBinaryNode<T>> delete(Potential<WithHeightBinaryNode<T>> root, T data)
 			throws Exception {
-		if (!root.isEmpty()) {
+		if (root.isEmpty()) {
 			return root;
 		}
 		WithHeightBinaryNode<T> rootValue = root.value();
@@ -223,8 +223,7 @@ public final class AvlTree<T extends Comparable<T>> implements Tree<T> {
 		try {
 			items = items(this.root.value(), items);
 		} catch (Exception exception) {
-			exception.printStackTrace();
-			items.clear();
+			throw new RuntimeException(exception);
 		}
 		return items;
 	}

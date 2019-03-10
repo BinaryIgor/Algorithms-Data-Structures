@@ -11,7 +11,6 @@ public final class GeneticAlgorithm {
 	private static final double MUTATION_RATE = CROSSOVER_RATE / 5;
 	private final int randomPopulation;
 	private final Random random;
-
 	private final Population base;
 	private final int[] adapted;
 	private final Initialization<Integer> maxGene;
@@ -22,6 +21,7 @@ public final class GeneticAlgorithm {
 		} else {
 			this.randomPopulation = base.size() / 10;
 		}
+
 		this.random = random;
 		this.base = base;
 		this.adapted = this.base.adapted();
