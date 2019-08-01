@@ -37,7 +37,7 @@ public final class QuickSort<T extends Comparable<T>> implements SortingAlgorith
 		T pivot = pivot(items, start, end);
 		int i = start, j = end;
 		while (i < j) {
-			while (shouldFoward(items, pivot, i)) {
+			while (shouldForward(items, pivot, i)) {
 				i++;
 			}
 			while (shouldBackward(items, pivot, j)) {
@@ -80,7 +80,7 @@ public final class QuickSort<T extends Comparable<T>> implements SortingAlgorith
 		items.set(second, tmp);
 	}
 
-	private boolean shouldFoward(List<T> items, T pivot, int curr) {
+	private boolean shouldForward(List<T> items, T pivot, int curr) {
 		int cmp = items.get(curr).compareTo(pivot);
 		return (this.ascending && cmp < 0) || (!this.ascending && cmp > 0);
 	}
