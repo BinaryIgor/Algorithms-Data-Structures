@@ -1,42 +1,36 @@
 package com.iprogrammerr.algorithms_data_structures.tree;
 
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers;
 import org.junit.Test;
 
 public class BinarySearchTreeTest {
 
 	@Test
 	public void returnsItems() {
-		BinarySearchTree<Integer> tree = new BinarySearchTree<>();
+		TreesTests.returnsItems(new BinarySearchTree<>(), new Integer[] { 1, 2, 3 });
+	}
 
-		tree.insert(1);
-		tree.insert(3);
-		tree.insert(4);
-		tree.insert(-1);
-
-		MatcherAssert.assertThat(tree.items(), Matchers.contains(-1, 1, 3, 4));
+	@Test
+	public void throwsExceptionOnDuplicate() {
+		TreesTests.throwsExceptionOnDuplicate(new BinarySearchTree<>(), 2);
 	}
 
 	@Test
 	public void deletes() {
-		BinarySearchTree<Integer> tree = new BinarySearchTree<>();
-
-		tree.insert(1);
-		tree.insert(2);
-		tree.delete(2);
-
-		MatcherAssert.assertThat(tree.items(), Matchers.contains(1));
+		TreesTests.deletes(new BinarySearchTree<>(), new Integer[] { 4, 5, 6 }, 5);
 	}
 
 	@Test
 	public void founds() {
-		BinarySearchTree<Integer> tree = new BinarySearchTree<>();
+		TreesTests.founds(new BinarySearchTree<>(), new Integer[] { 4, 2, 6, 22 }, 22);
+	}
 
-		int wanted = 22;
-		tree.insert(wanted);
-		tree.insert(3);
+	@Test
+	public void foundsMin() {
+		TreesTests.foundsMin(new BinarySearchTree<>(), new Integer[] { 4, 2, 6, 22 });
+	}
 
-		MatcherAssert.assertThat(tree.search(wanted), Matchers.equalTo(wanted));
+	@Test
+	public void foundsMax() {
+		TreesTests.foundsMax(new BinarySearchTree<>(), new Integer[] { 4, -2 });
 	}
 }

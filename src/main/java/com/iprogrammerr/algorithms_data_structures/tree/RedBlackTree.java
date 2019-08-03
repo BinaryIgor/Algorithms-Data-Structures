@@ -26,7 +26,7 @@ public final class RedBlackTree<T extends Comparable<T>> implements Tree<T> {
 	}
 
 	@Override
-	public void insert(T data) throws Exception {
+	public void insert(T data) {
 		ColoredBinaryNode<T> node = new RedBlackTreeNode<>(data);
 		this.root.revalue(insert(this.root, node));
 		if (hasGrandParent(node)) {
@@ -34,15 +34,14 @@ public final class RedBlackTree<T extends Comparable<T>> implements Tree<T> {
 		}
 	}
 
-	private ColoredBinaryNode<T> insert(Potential<ColoredBinaryNode<T>> root, ColoredBinaryNode<T> node)
-			throws Exception {
+	private ColoredBinaryNode<T> insert(Potential<ColoredBinaryNode<T>> root, ColoredBinaryNode<T> node) {
 		if (root.isEmpty()) {
 			return node;
 		}
 		ColoredBinaryNode<T> rootValue = root.value();
 		int comparisonValue = node.data().compareTo(rootValue.data());
 		if (comparisonValue == 0) {
-			throw new Exception("Duplicated values are not allowed");
+			throw new RuntimeException("Duplicated values are not allowed");
 		}
 		if (comparisonValue < 0) {
 			rootValue.changeLeft(insert(rootValue.left(), node));
@@ -54,11 +53,11 @@ public final class RedBlackTree<T extends Comparable<T>> implements Tree<T> {
 		return rootValue;
 	}
 
-	private boolean hasGrandParent(ColoredBinaryNode<T> node) throws Exception {
+	private boolean hasGrandParent(ColoredBinaryNode<T> node) {
 		return node.parent().hasValue() && node.parent().value().parent().hasValue();
 	}
 
-	private void fixViolations(ColoredBinaryNode<T> node) throws Exception {
+	private void fixViolations(ColoredBinaryNode<T> node) {
 		while (shouldFixViolation(node)) {
 			ColoredBinaryNode<T> parent = node.parent().value();
 			ColoredBinaryNode<T> grandParent = parent.parent().value();
@@ -73,12 +72,12 @@ public final class RedBlackTree<T extends Comparable<T>> implements Tree<T> {
 		}
 	}
 
-	private boolean shouldFixViolation(ColoredBinaryNode<T> node) throws Exception {
+	private boolean shouldFixViolation(ColoredBinaryNode<T> node) {
 		return !node.equals(this.root.value()) && node.color().equals(RED) && node.parent().value().color().equals(RED);
 	}
 
 	private ColoredBinaryNode<T> fixLeftChildViolation(ColoredBinaryNode<T> grandParent, ColoredBinaryNode<T> parent,
-			ColoredBinaryNode<T> node) throws Exception {
+			ColoredBinaryNode<T> node) {
 		Potential<ColoredBinaryNode<T>> uncle = grandParent.right();
 		if (isRed(uncle)) {
 			grandParent.changeColor(RED);
@@ -101,7 +100,7 @@ public final class RedBlackTree<T extends Comparable<T>> implements Tree<T> {
 	}
 
 	private ColoredBinaryNode<T> fixRightChildViolation(ColoredBinaryNode<T> grandParent, ColoredBinaryNode<T> parent,
-			ColoredBinaryNode<T> node) throws Exception {
+			ColoredBinaryNode<T> node) {
 		Potential<ColoredBinaryNode<T>> uncle = grandParent.left();
 		if (isRed(uncle)) {
 			grandParent.changeColor(RED);
@@ -161,20 +160,15 @@ public final class RedBlackTree<T extends Comparable<T>> implements Tree<T> {
 
 	@Override
 	public void delete(T data) {
-		try {
-			Potential<ColoredBinaryNode<T>> deleted = deleted(new Potential<>(this.root).value(), data, true);
-			boolean newRoot = deleted.hasValue() && deleted.value().data().compareTo(this.root.value().data()) != 0;
-			if (newRoot) {
-				this.root.revalue(deleted.value());
-			}
-		} catch (Exception e) {
-			throw new RuntimeException(e);
+		Potential<ColoredBinaryNode<T>> deleted = deleted(new Potential<>(this.root).value(), data, true);
+		boolean newRoot = deleted.hasValue() && deleted.value().data().compareTo(this.root.value().data()) != 0;
+		if (newRoot) {
+			this.root.revalue(deleted.value());
 		}
 	}
 
 	// TODO in future - proper red black tree delete
-	private Potential<ColoredBinaryNode<T>> deleted(Potential<ColoredBinaryNode<T>> root, T data, boolean caseOne)
-			throws Exception {
+	private Potential<ColoredBinaryNode<T>> deleted(Potential<ColoredBinaryNode<T>> root, T data, boolean caseOne) {
 		if (!root.isEmpty()) {
 			return root;
 		}
@@ -323,11 +317,11 @@ public final class RedBlackTree<T extends Comparable<T>> implements Tree<T> {
 	}
 
 	@Override
-	public T search(T data) throws Exception {
+	public T search(T data) {
 		return search(this.root.value(), data).data();
 	}
 
-	private ColoredBinaryNode<T> search(ColoredBinaryNode<T> root, T data) throws Exception {
+	private ColoredBinaryNode<T> search(ColoredBinaryNode<T> root, T data) {
 		int comparisonValue = root.data().compareTo(data);
 		ColoredBinaryNode<T> foundNode;
 		if (comparisonValue == 0) {
@@ -337,17 +331,17 @@ public final class RedBlackTree<T extends Comparable<T>> implements Tree<T> {
 		} else if (comparisonValue < 0 && root.right().hasValue()) {
 			foundNode = search(root.right().value(), data);
 		} else {
-			throw new Exception("Needed data is not present");
+			throw new RuntimeException("Needed data is not present");
 		}
 		return foundNode;
 	}
 
 	@Override
-	public T min() throws Exception {
+	public T min() {
 		return min(this.root.value());
 	}
 
-	private T min(ColoredBinaryNode<T> root) throws Exception {
+	private T min(ColoredBinaryNode<T> root) {
 		if (root.left().hasValue()) {
 			return min(root.left().value());
 		}
@@ -355,11 +349,11 @@ public final class RedBlackTree<T extends Comparable<T>> implements Tree<T> {
 	}
 
 	@Override
-	public T max() throws Exception {
+	public T max() {
 		return max(this.root.value());
 	}
 
-	private T max(ColoredBinaryNode<T> root) throws Exception {
+	private T max(ColoredBinaryNode<T> root) {
 		if (root.right().hasValue()) {
 			return max(root.right().value());
 		}
@@ -377,7 +371,7 @@ public final class RedBlackTree<T extends Comparable<T>> implements Tree<T> {
 		return items;
 	}
 
-	private List<T> items(ColoredBinaryNode<T> root, List<T> items) throws Exception {
+	private List<T> items(ColoredBinaryNode<T> root, List<T> items) {
 		if (root.left().hasValue()) {
 			items(root.left().value(), items);
 		}
@@ -400,7 +394,7 @@ public final class RedBlackTree<T extends Comparable<T>> implements Tree<T> {
 		}
 	}
 
-	private void traverse(ColoredBinaryNode<T> node) throws Exception {
+	private void traverse(ColoredBinaryNode<T> node) {
 		if (node.left().hasValue()) {
 			traverse(node.left().value());
 		}

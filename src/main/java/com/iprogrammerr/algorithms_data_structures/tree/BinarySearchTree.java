@@ -3,14 +3,14 @@ package com.iprogrammerr.algorithms_data_structures.tree;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.iprogrammerr.algorithms_data_structures.tree.node.DefaultBinaryNode;
+import com.iprogrammerr.algorithms_data_structures.tree.node.BinaryNode;
 
 public class BinarySearchTree<T extends Comparable<T>> implements Tree<T> {
 
-	private DefaultBinaryNode<T> root;
+	private BinaryNode<T> root;
 
 	public BinarySearchTree(T data) {
-		root = new DefaultBinaryNode<>(data);
+		root = new BinaryNode<>(data);
 	}
 
 	public BinarySearchTree() {
@@ -22,9 +22,9 @@ public class BinarySearchTree<T extends Comparable<T>> implements Tree<T> {
 		root = insert(root, data);
 	}
 
-	private DefaultBinaryNode<T> insert(DefaultBinaryNode<T> root, T data) {
+	private BinaryNode<T> insert(BinaryNode<T> root, T data) {
 		if (root == null) {
-			return new DefaultBinaryNode<>(data);
+			return new BinaryNode<>(data);
 		}
 		int comparisonValue = data.compareTo(root.data);
 		if (comparisonValue == 0) {
@@ -43,9 +43,9 @@ public class BinarySearchTree<T extends Comparable<T>> implements Tree<T> {
 		return search(root, data).data;
 	}
 
-	private DefaultBinaryNode<T> search(DefaultBinaryNode<T> root, T data) {
+	private BinaryNode<T> search(BinaryNode<T> root, T data) {
 		int comparisonValue = root.data.compareTo(data);
-		DefaultBinaryNode<T> foundNode;
+		BinaryNode<T> foundNode;
 		if (comparisonValue == 0) {
 			foundNode = root;
 		} else if (comparisonValue > 0 && root.hasLeftChild()) {
@@ -60,14 +60,14 @@ public class BinarySearchTree<T extends Comparable<T>> implements Tree<T> {
 
 	@Override
 	public void delete(T data) {
-		DefaultBinaryNode<T> deleted = delete(root, data);
+		BinaryNode<T> deleted = delete(root, data);
 		boolean newRoot = deleted != null && deleted.data.compareTo(root.data) != 0;
 		if (newRoot) {
 			root = deleted;
 		}
 	}
 
-	private DefaultBinaryNode<T> delete(DefaultBinaryNode<T> root, T data) {
+	private BinaryNode<T> delete(BinaryNode<T> root, T data) {
 		if (root == null) {
 			return root;
 		}
@@ -93,7 +93,7 @@ public class BinarySearchTree<T extends Comparable<T>> implements Tree<T> {
 		return root == null ? new ArrayList<>() : items(root, new ArrayList<>());
 	}
 
-	private List<T> items(DefaultBinaryNode<T> root, List<T> items) {
+	private List<T> items(BinaryNode<T> root, List<T> items) {
 		if (root.hasLeftChild()) {
 			items(root.leftChild, items);
 		}
@@ -109,7 +109,7 @@ public class BinarySearchTree<T extends Comparable<T>> implements Tree<T> {
 		return min(root);
 	}
 
-	private T min(DefaultBinaryNode<T> root) {
+	private T min(BinaryNode<T> root) {
 		if (root.hasLeftChild()) {
 			return min(root.leftChild);
 		}
@@ -121,7 +121,7 @@ public class BinarySearchTree<T extends Comparable<T>> implements Tree<T> {
 		return max(root);
 	}
 
-	private T max(DefaultBinaryNode<T> root) {
+	private T max(BinaryNode<T> root) {
 		if (root.hasRightChild()) {
 			return max(root.rightChild);
 		}
@@ -135,7 +135,7 @@ public class BinarySearchTree<T extends Comparable<T>> implements Tree<T> {
 		}
 	}
 
-	private void traverse(DefaultBinaryNode<T> node) {
+	private void traverse(BinaryNode<T> node) {
 		if (node.hasLeftChild()) {
 			traverse(node.leftChild);
 		}

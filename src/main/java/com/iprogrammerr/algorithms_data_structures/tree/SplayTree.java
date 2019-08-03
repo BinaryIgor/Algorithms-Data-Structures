@@ -24,21 +24,20 @@ public final class SplayTree<T extends Comparable<T>> implements Tree<T> {
 	}
 
 	@Override
-	public void insert(T data) throws Exception {
+	public void insert(T data) {
 		WithParentBinaryNode<T> node = new SplayTreeNode<>(data);
 		this.root.revalue(insert(this.root, node));
 		splay(node);
 	}
 
-	private WithParentBinaryNode<T> insert(Potential<WithParentBinaryNode<T>> root, WithParentBinaryNode<T> node)
-			throws Exception {
+	private WithParentBinaryNode<T> insert(Potential<WithParentBinaryNode<T>> root, WithParentBinaryNode<T> node) {
 		if (root.isEmpty()) {
 			return node;
 		}
 		WithParentBinaryNode<T> rootValue = root.value();
 		int comparisonValue = node.data().compareTo(rootValue.data());
 		if (comparisonValue == 0) {
-			throw new Exception("Duplicated values are not allowed");
+			throw new RuntimeException("Duplicated values are not allowed");
 		}
 		if (comparisonValue < 0) {
 			rootValue.changeLeft(insert(rootValue.left(), node));
@@ -50,7 +49,7 @@ public final class SplayTree<T extends Comparable<T>> implements Tree<T> {
 		return rootValue;
 	}
 
-	private void splay(WithParentBinaryNode<T> node) throws Exception {
+	private void splay(WithParentBinaryNode<T> node) {
 		while (node.parent().hasValue()) {
 			WithParentBinaryNode<T> parent = node.parent().value();
 			if (parent.parent().isEmpty()) {
@@ -75,36 +74,31 @@ public final class SplayTree<T extends Comparable<T>> implements Tree<T> {
 		}
 	}
 
-	private boolean isLeftZigZig(WithParentBinaryNode<T> parent, WithParentBinaryNode<T> node) throws Exception {
+	private boolean isLeftZigZig(WithParentBinaryNode<T> parent, WithParentBinaryNode<T> node) {
 		return parent.left().hasValue() && parent.left().value().equals(node)
 				&& parent.parent().value().left().value().equals(parent);
 	}
 
-	private boolean isRightZigZig(WithParentBinaryNode<T> parent, WithParentBinaryNode<T> node) throws Exception {
+	private boolean isRightZigZig(WithParentBinaryNode<T> parent, WithParentBinaryNode<T> node) {
 		return parent.right().hasValue() && parent.right().value().equals(node)
 				&& parent.parent().value().right().value().equals(parent);
 	}
 
-	private boolean isRightLeftZigZag(WithParentBinaryNode<T> parent, WithParentBinaryNode<T> node) throws Exception {
+	private boolean isRightLeftZigZag(WithParentBinaryNode<T> parent, WithParentBinaryNode<T> node) {
 		return parent.left().hasValue() && parent.left().value().equals(node)
 				&& parent.parent().value().right().hasValue() && parent.parent().value().right().value().equals(parent);
 	}
 
 	@Override
 	public void delete(T data) {
-		try {
-			Potential<WithParentBinaryNode<T>> deleted = deleted(new Potential<>(this.root).value(), data);
-			boolean newRoot = deleted.hasValue() && deleted.value().data().compareTo(this.root.value().data()) != 0;
-			if (newRoot) {
-				this.root.revalue(deleted.value());
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		Potential<WithParentBinaryNode<T>> deleted = deleted(new Potential<>(this.root).value(), data);
+		boolean newRoot = deleted.hasValue() && deleted.value().data().compareTo(this.root.value().data()) != 0;
+		if (newRoot) {
+			this.root.revalue(deleted.value());
 		}
 	}
 
-	private Potential<WithParentBinaryNode<T>> deleted(Potential<WithParentBinaryNode<T>> root, T data)
-			throws Exception {
+	private Potential<WithParentBinaryNode<T>> deleted(Potential<WithParentBinaryNode<T>> root, T data) {
 		if (root.isEmpty()) {
 			return root;
 		}
@@ -132,7 +126,7 @@ public final class SplayTree<T extends Comparable<T>> implements Tree<T> {
 		return root;
 	}
 
-	private void rotateLeft(WithParentBinaryNode<T> node) throws Exception {
+	private void rotateLeft(WithParentBinaryNode<T> node) {
 		WithParentBinaryNode<T> rightNode = node.right().value();
 		node.changeRight(rightNode.left());
 		if (node.right().hasValue()) {
@@ -150,7 +144,7 @@ public final class SplayTree<T extends Comparable<T>> implements Tree<T> {
 		node.changeParent(rightNode);
 	}
 
-	private void rotateRight(WithParentBinaryNode<T> node) throws Exception {
+	private void rotateRight(WithParentBinaryNode<T> node) {
 		System.out.println("Rotating to the right = " + node);
 		WithParentBinaryNode<T> leftNode = node.left().value();
 		node.changeLeft(leftNode.right());
@@ -170,13 +164,13 @@ public final class SplayTree<T extends Comparable<T>> implements Tree<T> {
 	}
 
 	@Override
-	public T search(T data) throws Exception {
+	public T search(T data) {
 		WithParentBinaryNode<T> node = search(this.root.value(), data);
 		splay(node);
 		return node.data();
 	}
 
-	private WithParentBinaryNode<T> search(WithParentBinaryNode<T> root, T data) throws Exception {
+	private WithParentBinaryNode<T> search(WithParentBinaryNode<T> root, T data) {
 		System.out.println("SplayTree.search()");
 		int comparison = data.compareTo(root.data());
 		WithParentBinaryNode<T> found;
@@ -191,11 +185,11 @@ public final class SplayTree<T extends Comparable<T>> implements Tree<T> {
 	}
 
 	@Override
-	public T min() throws Exception {
+	public T min() {
 		return min(this.root.value());
 	}
 
-	private T min(WithParentBinaryNode<T> root) throws Exception {
+	private T min(WithParentBinaryNode<T> root) {
 		if (root.left().hasValue()) {
 			return min(root.left().value());
 		}
@@ -203,11 +197,11 @@ public final class SplayTree<T extends Comparable<T>> implements Tree<T> {
 	}
 
 	@Override
-	public T max() throws Exception {
+	public T max() {
 		return max(this.root.value());
 	}
 
-	private T max(WithParentBinaryNode<T> root) throws Exception {
+	private T max(WithParentBinaryNode<T> root) {
 		if (root.right().hasValue()) {
 			return max(root.right().value());
 		}

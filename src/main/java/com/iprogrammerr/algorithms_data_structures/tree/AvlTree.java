@@ -69,6 +69,10 @@ public class AvlTree<T extends Comparable<T>> implements Tree<T> {
 		return height(node.leftChild) - height(node.rightChild);
 	}
 
+	public int balance() {
+		return balance(root);
+	}
+
 	private int height(WithHeightBinaryNode<T> node) {
 		if (node == null) {
 			return -1;
@@ -132,8 +136,11 @@ public class AvlTree<T extends Comparable<T>> implements Tree<T> {
 			root.leftChild = delete(root.leftChild, maxFromLeftSubTree);
 			root.data = maxFromLeftSubTree;
 		}
+		if (root == null) {
+			return null;
+		}
 		root.height = height(root);
-		return root == null ? null : settleDeletion(root);
+		return settleDeletion(root);
 	}
 
 	private WithHeightBinaryNode<T> settleDeletion(WithHeightBinaryNode<T> node) {
@@ -209,7 +216,7 @@ public class AvlTree<T extends Comparable<T>> implements Tree<T> {
 			items(root.leftChild, items);
 		}
 		items.add(root.data);
-		if (root.hasLeftChild()) {
+		if (root.hasRightChild()) {
 			items(root.rightChild, items);
 		}
 		return items;

@@ -1,6 +1,6 @@
 package com.iprogrammerr.algorithms_data_structures.tree.node;
 
-public abstract class BinaryNode<T extends Comparable<T>> {
+public class BinaryNode<T extends Comparable<T>> {
 
 	public BinaryNode<T> leftChild;
 	public BinaryNode<T> rightChild;
@@ -22,5 +22,10 @@ public abstract class BinaryNode<T extends Comparable<T>> {
 
 	public boolean hasRightChild() {
 		return rightChild != null;
+	}
+
+	@Override
+	public String toString() {
+		return "BinaryNode [leftChild=" + leftChild + ", rightChild=" + rightChild + ", data=" + data + "]";
 	}
 }
