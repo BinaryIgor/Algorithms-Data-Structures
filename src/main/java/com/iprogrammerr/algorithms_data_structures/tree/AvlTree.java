@@ -3,262 +3,233 @@ package com.iprogrammerr.algorithms_data_structures.tree;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.iprogrammerr.algorithms_data_structures.model.Potential;
-import com.iprogrammerr.algorithms_data_structures.tree.node.AvlTreeNode;
 import com.iprogrammerr.algorithms_data_structures.tree.node.WithHeightBinaryNode;
 
-public final class AvlTree<T extends Comparable<T>> implements Tree<T> {
+public class AvlTree<T extends Comparable<T>> implements Tree<T> {
 
-	private final Potential<WithHeightBinaryNode<T>> root;
+	private WithHeightBinaryNode<T> root;
 
-	public AvlTree(Potential<WithHeightBinaryNode<T>> root) {
-		this.root = root;
+	public AvlTree(T root) {
+		this.root = new WithHeightBinaryNode<>(root);
 	}
 
-	public AvlTree(T data) {
-		this(new Potential<>(new AvlTreeNode<>(data)));
-	}
+	public AvlTree() {
 
-	public AvlTree(int balanceThreshold) {
-		this(new Potential<>());
 	}
 
 	@Override
-	public void insert(T data) throws Exception {
-		this.root.revalue(insert(this.root, data));
+	public void insert(T data) {
+		root = insert(root, data);
 	}
 
-	private WithHeightBinaryNode<T> insert(Potential<WithHeightBinaryNode<T>> root, T data) throws Exception {
-		if (root.isEmpty()) {
-			return new AvlTreeNode<>(data);
+	private WithHeightBinaryNode<T> insert(WithHeightBinaryNode<T> root, T data) {
+		if (root == null) {
+			return new WithHeightBinaryNode<>(data);
 		}
-		WithHeightBinaryNode<T> node = root.value();
-		int comparisonValue = data.compareTo(node.data());
+		int comparisonValue = data.compareTo(root.data);
 		if (comparisonValue == 0) {
-			throw new Exception("Duplicated values are not allowed");
+			throw new RuntimeException("Duplicated values are not allowed");
 		}
 		if (comparisonValue < 0) {
-			node.changeLeft(insert(node.left(), data));
+			root.leftChild = insert(root.leftChild, data);
 		} else {
-			node.changeRight(insert(node.right(), data));
+			root.rightChild = insert(root.rightChild, data);
 		}
-		node.changeHeight(height(node));
+		root.height = height(root);
 		return settleInsertion(root, data);
 	}
 
-	private WithHeightBinaryNode<T> settleInsertion(Potential<WithHeightBinaryNode<T>> node, T data) throws Exception {
+	private WithHeightBinaryNode<T> settleInsertion(WithHeightBinaryNode<T> node, T data) {
 		int balance = balance(node);
 		if (balance >= -1 && balance <= 1) {
-			return node.value();
+			return node;
 		}
-		WithHeightBinaryNode<T> nodeValue = node.value();
 		WithHeightBinaryNode<T> settled;
 		int comparisonValue;
 		if (balance > 1) {
-			comparisonValue = data.compareTo(nodeValue.left().value().data());
+			comparisonValue = data.compareTo(node.leftChild.data);
 			if (comparisonValue > 0) {
-				nodeValue.changeLeft(leftRotation(nodeValue.left().value()));
+				node.leftChild = leftRotation(node.leftChild);
 			}
-			settled = rightRotation(nodeValue);
+			settled = rightRotation(node);
 		} else {
-			comparisonValue = data.compareTo(nodeValue.right().value().data());
+			comparisonValue = data.compareTo(node.rightChild.data);
 			if (comparisonValue < 0) {
-				nodeValue.changeRight(rightRotation(nodeValue.right().value()));
+				node.rightChild = rightRotation(node.rightChild);
 			}
-			settled = leftRotation(nodeValue);
+			settled = leftRotation(node);
 		}
 		return settled;
 	}
 
-	private int balance(Potential<WithHeightBinaryNode<T>> node) throws Exception {
-		if (node.isEmpty()) {
+	private int balance(WithHeightBinaryNode<T> node) {
+		if (node == null) {
 			return 0;
 		}
-		return height(node.value().left()) - height(node.value().right());
+		return height(node.leftChild) - height(node.rightChild);
 	}
 
 	private int height(WithHeightBinaryNode<T> node) {
-		int leftHeight = height(node.left());
-		int rightHeight = height(node.right());
+		if (node == null) {
+			return -1;
+		}
+		int leftHeight = node.hasLeftChild() ? node.leftChild.height : -1;
+		int rightHeight = node.hasRightChild() ? node.rightChild.height : -1;
 		return (leftHeight > rightHeight ? leftHeight : rightHeight) + 1;
 	}
 
-	private int height(Potential<WithHeightBinaryNode<T>> node) {
-		if (node.isEmpty()) {
-			return -1;
-		}
-		try {
-			return node.value().height();
-		} catch (Exception exception) {
-			return -1;
-		}
-	}
+	private WithHeightBinaryNode<T> rightRotation(WithHeightBinaryNode<T> node) {
+		WithHeightBinaryNode<T> leftNode = node.leftChild;
+		WithHeightBinaryNode<T> leftRightNode = leftNode.rightChild;
 
-	private WithHeightBinaryNode<T> rightRotation(WithHeightBinaryNode<T> node) throws Exception {
-		WithHeightBinaryNode<T> leftNode = node.left().value();
-		Potential<WithHeightBinaryNode<T>> leftRightNode = leftNode.right();
-		node.changeLeft(leftRightNode);
-		leftNode.changeRight(node);
-		node.changeHeight(height(node));
-		leftNode.changeHeight(height(leftNode));
+		node.leftChild = leftRightNode;
+		leftNode.rightChild = node;
+
+		node.height = height(node);
+		leftNode.height = height(leftNode);
 		return leftNode;
 	}
 
-	private WithHeightBinaryNode<T> leftRotation(WithHeightBinaryNode<T> node) throws Exception {
-		WithHeightBinaryNode<T> rightNode = node.right().value();
-		Potential<WithHeightBinaryNode<T>> rightLeftNode = rightNode.left();
-		node.changeRight(rightLeftNode);
-		rightNode.changeLeft(node);
-		node.changeHeight(height(node));
-		rightNode.changeHeight(height(rightNode));
+	private WithHeightBinaryNode<T> leftRotation(WithHeightBinaryNode<T> node) {
+		WithHeightBinaryNode<T> rightNode = node.rightChild;
+		WithHeightBinaryNode<T> rightLeftNode = rightNode.leftChild;
+
+		node.rightChild = rightLeftNode;
+		rightNode.leftChild = node;
+
+		node.height = height(node);
+		rightNode.height = height(rightNode);
 		return rightNode;
 	}
 
 	@Override
 	public void delete(T data) {
-		try {
-			Potential<WithHeightBinaryNode<T>> deleted = delete(new Potential<>(this.root).value(), data);
-			boolean newRoot = deleted.hasValue() && deleted.value().data().compareTo(this.root.value().data()) != 0;
-			if (newRoot) {
-				this.root.revalue(deleted.value());
-			}
-		} catch (Exception exception) {
-			throw new RuntimeException(exception);
+		if (root == null) {
+			return;
+		}
+		WithHeightBinaryNode<T> deleted = delete(root, data);
+		boolean newRoot = deleted != null && deleted.data.compareTo(root.data) != 0;
+		if (newRoot) {
+			root = deleted;
 		}
 	}
 
-	private Potential<WithHeightBinaryNode<T>> delete(Potential<WithHeightBinaryNode<T>> root, T data)
-			throws Exception {
-		if (root.isEmpty()) {
+	private WithHeightBinaryNode<T> delete(WithHeightBinaryNode<T> root, T data) {
+		if (root == null) {
 			return root;
 		}
-		WithHeightBinaryNode<T> rootValue = root.value();
-		int comparisonValue = rootValue.data().compareTo(data);
+		int comparisonValue = root.data.compareTo(data);
 		if (comparisonValue > 0) {
-			rootValue.changeLeft(delete(rootValue.left(), data));
+			root.leftChild = delete(root.leftChild, data);
 		} else if (comparisonValue < 0) {
-			rootValue.changeRight(delete(rootValue.right(), data));
-		} else if (rootValue.left().isEmpty()) {
-			root = rootValue.right();
-		} else if (rootValue.right().isEmpty()) {
-			root = rootValue.left();
+			root.rightChild = delete(root.rightChild, data);
+		} else if (!root.hasLeftChild()) {
+			root = root.rightChild;
+		} else if (!root.hasRightChild()) {
+			root = root.leftChild;
 		} else {
-			T maxFromLeftSubTree = max(rootValue.left().value());
-			rootValue.changeLeft(delete(rootValue.left(), maxFromLeftSubTree));
-			rootValue.changeData(maxFromLeftSubTree);
+			T maxFromLeftSubTree = max(root.leftChild);
+			root.leftChild = delete(root.leftChild, maxFromLeftSubTree);
+			root.data = maxFromLeftSubTree;
 		}
-		rootValue.changeHeight(height(rootValue));
-		return root.hasValue() ? settleDeletion(root) : root;
+		root.height = height(root);
+		return root == null ? null : settleDeletion(root);
 	}
 
-	private Potential<WithHeightBinaryNode<T>> settleDeletion(Potential<WithHeightBinaryNode<T>> node)
-			throws Exception {
+	private WithHeightBinaryNode<T> settleDeletion(WithHeightBinaryNode<T> node) {
 		int balance = balance(node);
 		if (balance >= -1 && balance <= 1) {
 			return node;
 		}
-		WithHeightBinaryNode<T> nodeValue = node.value();
 		if (balance > 1) {
-			if (balance(nodeValue.left()) < 0) {
-				nodeValue.changeLeft(leftRotation(nodeValue.left().value()));
+			if (balance(node.leftChild) < 0) {
+				node.leftChild = leftRotation(node.leftChild);
 			}
-			nodeValue = rightRotation(nodeValue);
+			node = rightRotation(node);
 		} else if (balance < -1) {
-			if (balance(nodeValue.right()) > 0) {
-				nodeValue.changeRight(rightRotation(nodeValue.right().value()));
+			if (balance(node.rightChild) > 0) {
+				node.rightChild = rightRotation(node.rightChild);
 			}
-			nodeValue = leftRotation(nodeValue);
+			node = leftRotation(node);
 		}
-		node.revalue(nodeValue);
 		return node;
 	}
 
 	@Override
-	public T search(T data) throws Exception {
-		return search(this.root.value(), data).data();
+	public T search(T data) {
+		return search(root, data).data;
 	}
 
-	private WithHeightBinaryNode<T> search(WithHeightBinaryNode<T> root, T data) throws Exception {
-		int comparisonValue = root.data().compareTo(data);
+	private WithHeightBinaryNode<T> search(WithHeightBinaryNode<T> root, T data) {
+		int comparisonValue = root.data.compareTo(data);
 		WithHeightBinaryNode<T> foundNode;
 		if (comparisonValue == 0) {
 			foundNode = root;
-		} else if (comparisonValue > 0 && root.left().hasValue()) {
-			foundNode = search(root.left().value(), data);
-		} else if (comparisonValue < 0 && root.right().hasValue()) {
-			foundNode = search(root.right().value(), data);
+		} else if (comparisonValue > 0 && root.hasLeftChild()) {
+			foundNode = search(root.leftChild, data);
+		} else if (comparisonValue < 0 && root.hasRightChild()) {
+			foundNode = search(root.rightChild, data);
 		} else {
-			throw new Exception("Needed data is not present");
+			throw new RuntimeException("Needed data is not present");
 		}
 		return foundNode;
 	}
 
 	@Override
-	public T min() throws Exception {
-		return min(this.root.value());
+	public T min() {
+		return min(root);
 	}
 
-	private T min(WithHeightBinaryNode<T> root) throws Exception {
-		if (root.left().hasValue()) {
-			return min(root.left().value());
+	private T min(WithHeightBinaryNode<T> root) {
+		if (root.hasLeftChild()) {
+			return min(root.leftChild);
 		}
-		return root.data();
+		return root.data;
 	}
 
 	@Override
-	public T max() throws Exception {
-		return max(this.root.value());
+	public T max() {
+		return max(root);
 	}
 
-	private T max(WithHeightBinaryNode<T> root) throws Exception {
-		if (root.right().hasValue()) {
-			return max(root.right().value());
+	private T max(WithHeightBinaryNode<T> root) {
+		if (root.hasRightChild()) {
+			return max(root.rightChild);
 		}
-		return root.data();
+		return root.data;
 	}
 
 	@Override
 	public Iterable<T> items() {
-		List<T> items = new ArrayList<>();
-		try {
-			items = items(this.root.value(), items);
-		} catch (Exception exception) {
-			throw new RuntimeException(exception);
-		}
-		return items;
+		return root == null ? new ArrayList<>() : items(root, new ArrayList<>());
 	}
 
-	private List<T> items(WithHeightBinaryNode<T> root, List<T> items) throws Exception {
-		if (root.left().hasValue()) {
-			items(root.left().value(), items);
+	private List<T> items(WithHeightBinaryNode<T> root, List<T> items) {
+		if (root.hasLeftChild()) {
+			items(root.leftChild, items);
 		}
-		items.add(root.data());
-		if (root.right().hasValue()) {
-			items(root.right().value(), items);
+		items.add(root.data);
+		if (root.hasLeftChild()) {
+			items(root.rightChild, items);
 		}
 		return items;
 	}
 
 	@Override
 	public void traverse() {
-		try {
-			if (this.root.hasValue()) {
-				System.out.println("Root = " + this.root);
-				traverse(this.root.value());
-			}
-		} catch (Exception exception) {
-			exception.printStackTrace();
+		if (root != null) {
+			System.out.println("Root = " + root);
+			traverse(root);
 		}
 	}
 
-	private void traverse(WithHeightBinaryNode<T> node) throws Exception {
-		if (node.left().hasValue()) {
-			traverse(node.left().value());
+	private void traverse(WithHeightBinaryNode<T> node) {
+		if (node.hasLeftChild()) {
+			traverse(node.leftChild);
 		}
-		System.out.println(node.data());
-		if (node.right().hasValue()) {
-			traverse(node.right().value());
+		System.out.println(node.data);
+		if (node.hasRightChild()) {
+			traverse(node.rightChild);
 		}
 	}
-
 }

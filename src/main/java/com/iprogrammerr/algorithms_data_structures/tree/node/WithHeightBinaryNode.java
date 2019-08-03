@@ -1,26 +1,33 @@
 package com.iprogrammerr.algorithms_data_structures.tree.node;
 
-import com.iprogrammerr.algorithms_data_structures.model.Potential;
+public final class WithHeightBinaryNode<T extends Comparable<T>> {
 
-public interface WithHeightBinaryNode<T extends Comparable<T>> {
+	public WithHeightBinaryNode<T> leftChild;
+	public WithHeightBinaryNode<T> rightChild;
+	public T data;
+	public int height;
 
-    T data();
+	public WithHeightBinaryNode(WithHeightBinaryNode<T> leftChild, WithHeightBinaryNode<T> rightChild, T data,
+			int height) {
+		this.leftChild = leftChild;
+		this.rightChild = rightChild;
+		this.data = data;
+		this.height = height;
+	}
 
-    void changeData(T data);
+	public WithHeightBinaryNode(T data, int height) {
+		this(null, null, data, height);
+	}
 
-    int height();
+	public WithHeightBinaryNode(T data) {
+		this(data, 0);
+	}
 
-    void changeHeight(int height);
+	public boolean hasLeftChild() {
+		return leftChild != null;
+	}
 
-    Potential<WithHeightBinaryNode<T>> left();
-
-    void changeLeft(Potential<WithHeightBinaryNode<T>> node);
-
-    void changeLeft(WithHeightBinaryNode<T> node);
-
-    Potential<WithHeightBinaryNode<T>> right();
-
-    void changeRight(Potential<WithHeightBinaryNode<T>> node);
-
-    void changeRight(WithHeightBinaryNode<T> node);
+	public boolean hasRightChild() {
+		return rightChild != null;
+	}
 }
