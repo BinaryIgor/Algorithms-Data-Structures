@@ -1,22 +1,31 @@
 package com.iprogrammerr.algorithms_data_structures.tree.node;
 
-import com.iprogrammerr.algorithms_data_structures.model.Potential;
+public final class BinaryNode<T extends Comparable<T>> {
 
-public interface BinaryNode<T extends Comparable<T>> {
+	public BinaryNode<T> leftChild;
+	public BinaryNode<T> rightChild;
+	public T data;
 
-    T data();
+	public BinaryNode(BinaryNode<T> leftChild, BinaryNode<T> rightChild, T data) {
+		this.leftChild = leftChild;
+		this.rightChild = rightChild;
+		this.data = data;
+	}
 
-    void data(T data);
+	public BinaryNode(T data) {
+		this(null, null, data);
+	}
 
-    Potential<BinaryNode<T>> left();
+	public boolean hasLeftChild() {
+		return leftChild != null;
+	}
 
-    void changeLeft(BinaryNode<T> node);
+	public boolean hasRightChild() {
+		return rightChild != null;
+	}
 
-    void changeLeft(Potential<BinaryNode<T>> node);
-
-    Potential<BinaryNode<T>> right();
-
-    void changeRight(BinaryNode<T> node);
-
-    void changeRight(Potential<BinaryNode<T>> node);
+	@Override
+	public String toString() {
+		return "BinaryNode [leftChild=" + leftChild + ", rightChild=" + rightChild + ", data=" + data + "]";
+	}
 }
