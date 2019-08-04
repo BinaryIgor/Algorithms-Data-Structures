@@ -20,7 +20,7 @@ public final class SplayBinaryNode<T extends Comparable<T>> {
 	}
 
 	public boolean isRoot() {
-		return parent != null;
+		return parent == null;
 	}
 
 	public boolean hasLeftChild() {
@@ -30,4 +30,5 @@ public final class SplayBinaryNode<T extends Comparable<T>> {
 	public boolean hasRightChild() {
 		return rightChild != null;
 	}
+
 }

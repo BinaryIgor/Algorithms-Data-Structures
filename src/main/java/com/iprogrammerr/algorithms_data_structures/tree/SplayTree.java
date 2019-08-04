@@ -109,7 +109,7 @@ public final class SplayTree<T extends Comparable<T>> implements Tree<T> {
 			}
 			root = root.leftChild;
 		} else {
-			T successor = min(root.rightChild);
+			T successor = min(root.rightChild).data;
 			root.rightChild = delete(root.rightChild, successor);
 			root.data = successor;
 		}
@@ -138,7 +138,6 @@ public final class SplayTree<T extends Comparable<T>> implements Tree<T> {
 	}
 
 	private void rotateRight(SplayBinaryNode<T> node) {
-		System.out.println("Rotating to the right = " + node);
 		SplayBinaryNode<T> leftNode = node.leftChild;
 		node.leftChild = leftNode.rightChild;
 		if (node.hasLeftChild()) {
@@ -155,7 +154,7 @@ public final class SplayTree<T extends Comparable<T>> implements Tree<T> {
 			parent.rightChild = leftNode;
 		}
 
-		leftNode.leftChild = node;
+		leftNode.rightChild = node;
 		node.parent = leftNode;
 	}
 
@@ -186,26 +185,30 @@ public final class SplayTree<T extends Comparable<T>> implements Tree<T> {
 
 	@Override
 	public T min() {
-		return min(root);
+		SplayBinaryNode<T> min = min(root);
+		splay(min);
+		return min.data;
 	}
 
-	private T min(SplayBinaryNode<T> root) {
+	private SplayBinaryNode<T> min(SplayBinaryNode<T> root) {
 		if (root.hasLeftChild()) {
 			return min(root.leftChild);
 		}
-		return root.data;
+		return root;
 	}
 
 	@Override
 	public T max() {
-		return max(root);
+		SplayBinaryNode<T> max = max(root);
+		splay(max);
+		return max.data;
 	}
 
-	private T max(SplayBinaryNode<T> root) {
+	private SplayBinaryNode<T> max(SplayBinaryNode<T> root) {
 		if (root.hasRightChild()) {
 			return max(root.rightChild);
 		}
-		return root.data;
+		return root;
 	}
 
 	@Override
@@ -239,5 +242,9 @@ public final class SplayTree<T extends Comparable<T>> implements Tree<T> {
 		if (root.hasRightChild()) {
 			traverse(root.rightChild, itemConsumer);
 		}
+	}
+
+	public T rootData() {
+		return root.data;
 	}
 }
