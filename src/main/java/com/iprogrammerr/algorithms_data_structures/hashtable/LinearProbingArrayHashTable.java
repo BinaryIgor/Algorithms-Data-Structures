@@ -13,7 +13,7 @@ public final class LinearProbingArrayHashTable<K, V> implements HashTable<K, V> 
 
 	public LinearProbingArrayHashTable(int initialCapacity) {
 		this.entries = (HashTableEntry<K, V>[]) Array.newInstance(HashTableEntry.class,
-				(int) (initialCapacity / LOAD_FACTOR));
+			(int) (initialCapacity / LOAD_FACTOR));
 	}
 
 	public LinearProbingArrayHashTable() {
@@ -56,11 +56,11 @@ public final class LinearProbingArrayHashTable<K, V> implements HashTable<K, V> 
 	}
 
 	@Override
-	public V value(K key) throws Exception {
+	public V value(K key) {
 		int hashedKey = hashedKey(key);
 		HashTableEntry<K, V> entry = this.entries[hashedKey];
 		if (entry == null) {
-			throw new Exception(String.format("There is no value associated with a %s key", key));
+			throw new RuntimeException(String.format("There is no value associated with a %s key", key));
 		}
 		V value;
 		if (entry.key().equals(key)) {
@@ -136,7 +136,7 @@ public final class LinearProbingArrayHashTable<K, V> implements HashTable<K, V> 
 
 	private HashTableEntry<K, V>[] valuedEntries() {
 		HashTableEntry<K, V>[] valuedEntries = (HashTableEntry<K, V>[]) Array.newInstance(HashTableEntry.class,
-				this.size);
+			this.size);
 		for (int i = 0, j = 0; i < this.entries.length && j < valuedEntries.length; i++) {
 			HashTableEntry<K, V> entry = this.entries[i];
 			if (entry != null) {

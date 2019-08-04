@@ -60,17 +60,17 @@ public final class ChainedArrayHashTable<K, V> implements HashTable<K, V> {
 	}
 
 	@Override
-	public V value(K key) throws Exception {
+	public V value(K key) {
 		List<HashTableEntry<K, V>> keyEntries = this.entries.value()[hashedKey(key)];
 		if (keyEntries == null) {
-			throw new Exception(String.format("There is no value associated with %s key", key));
+			throw new RuntimeException(String.format("There is no value associated with %s key", key));
 		}
 		for (HashTableEntry<K, V> entry : keyEntries) {
 			if (entry.key().equals(key)) {
 				return entry.value();
 			}
 		}
-		throw new Exception(String.format("There is no value associated with %s key", key));
+		throw new RuntimeException(String.format("There is no value associated with %s key", key));
 	}
 
 	@Override

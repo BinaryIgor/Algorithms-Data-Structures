@@ -2,19 +2,19 @@ package com.iprogrammerr.algorithms_data_structures.hashtable;
 
 public interface HashTable<K, V> {
 
-    HashTable<K, V> save(K key, V value);
+	HashTable<K, V> save(K key, V value);
 
-    V value(K key) throws Exception;
+	V value(K key);
 
-    void remove(K key);
+	void remove(K key);
 
-    int size();
+	int size();
 
-    boolean isEmpty();
+	boolean isEmpty();
 
-    Iterable<HashTableEntry<K, V>> entries();
+	Iterable<HashTableEntry<K, V>> entries();
 
-    Iterable<K> keys();
+	Iterable<K> keys();
 
-    Iterable<V> values();
+	Iterable<V> values();
 }
