@@ -5,3 +5,9 @@
 # Maven
 log/
 target/
+#Intellij
+.idea/
+*.iml
+.classpath
+.project
+.settings

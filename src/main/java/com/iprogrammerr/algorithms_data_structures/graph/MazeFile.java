@@ -12,7 +12,7 @@ import com.iprogrammerr.algorithms_data_structures.initialization.StickyInitiali
 
 public class MazeFile implements Maze {
 
-	private final Initialization<Point> start;
+	private final Initialization<Maze.Coordinates> start;
 	private final Initialization<List<List<Integer>>> map;
 
 	public MazeFile(String path) {
@@ -45,11 +45,11 @@ public class MazeFile implements Maze {
 			for (int i = 0; i < this.map.value().size(); ++i) {
 				for (int j = 0; j < this.map.value().get(i).size(); ++j) {
 					if (this.map.value().get(i).get(j) == Maze.START) {
-						return new Point(i, j);
+						return new Maze.Coordinates(i, j);
 					}
 				}
 			}
-			return new Point(-1, -1);
+			return new Maze.Coordinates(-1, -1);
 		});
 	}
 
@@ -59,7 +59,7 @@ public class MazeFile implements Maze {
 	}
 
 	@Override
-	public Point start() {
+	public Maze.Coordinates start() {
 		return this.start.value();
 	}
 }
