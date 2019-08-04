@@ -21,9 +21,9 @@ public final class BoyerMooreBytesSearch implements BytesSearch {
 				shift = 0;
 				int j;
 				for (j = pattern.length - 1; j >= 0; --j) {
-					if (this.source[i + j] != pattern[j]) {
-						shift = bytesShifts.containsKey(this.source[i + j]) ? bytesShifts.get(this.source[i + j])
-								: pattern.length;
+					byte sb = this.source[i + j];
+					if (sb != pattern[j]) {
+						shift = bytesShifts.getOrDefault(sb, pattern.length);
 						break;
 					}
 				}
