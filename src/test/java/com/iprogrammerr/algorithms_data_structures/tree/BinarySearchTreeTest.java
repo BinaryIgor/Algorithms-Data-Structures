@@ -10,6 +10,11 @@ public class BinarySearchTreeTest {
 	}
 
 	@Test
+	public void traverses() {
+		TreesTests.traverses(new BinarySearchTree<>(), new Integer[] { 3, 4 });
+	}
+
+	@Test
 	public void throwsExceptionOnDuplicate() {
 		TreesTests.throwsExceptionOnDuplicate(new BinarySearchTree<>(), 2);
 	}

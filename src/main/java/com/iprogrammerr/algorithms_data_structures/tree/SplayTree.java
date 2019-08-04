@@ -2,252 +2,242 @@ package com.iprogrammerr.algorithms_data_structures.tree;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
-import com.iprogrammerr.algorithms_data_structures.model.Potential;
-import com.iprogrammerr.algorithms_data_structures.tree.node.SplayTreeNode;
-import com.iprogrammerr.algorithms_data_structures.tree.node.WithParentBinaryNode;
+import com.iprogrammerr.algorithms_data_structures.tree.node.SplayBinaryNode;
 
 public final class SplayTree<T extends Comparable<T>> implements Tree<T> {
 
-	private final Potential<WithParentBinaryNode<T>> root;
-
-	public SplayTree(WithParentBinaryNode<T> root) {
-		this.root = new Potential<WithParentBinaryNode<T>>(root);
-	}
+	private SplayBinaryNode<T> root;
 
 	public SplayTree(T data) {
-		this(new SplayTreeNode<>(data));
+		root = new SplayBinaryNode<>(data);
 	}
 
 	public SplayTree() {
-		this.root = new Potential<>();
+
 	}
 
 	@Override
-	public void insert(T data) {
-		WithParentBinaryNode<T> node = new SplayTreeNode<>(data);
-		this.root.revalue(insert(this.root, node));
+	public void put(T data) {
+		SplayBinaryNode<T> node = new SplayBinaryNode<>(data);
+		root = insert(root, node);
 		splay(node);
 	}
 
-	private WithParentBinaryNode<T> insert(Potential<WithParentBinaryNode<T>> root, WithParentBinaryNode<T> node) {
-		if (root.isEmpty()) {
+	private SplayBinaryNode<T> insert(SplayBinaryNode<T> root, SplayBinaryNode<T> node) {
+		if (root == null) {
 			return node;
 		}
-		WithParentBinaryNode<T> rootValue = root.value();
-		int comparisonValue = node.data().compareTo(rootValue.data());
+		int comparisonValue = node.data.compareTo(root.data);
 		if (comparisonValue == 0) {
 			throw new RuntimeException("Duplicated values are not allowed");
 		}
 		if (comparisonValue < 0) {
-			rootValue.changeLeft(insert(rootValue.left(), node));
-			rootValue.left().value().changeParent(rootValue);
+			root.leftChild = insert(root.leftChild, node);
+			root.leftChild.parent = root;
 		} else {
-			rootValue.changeRight(insert(rootValue.right(), node));
-			rootValue.right().value().changeParent(rootValue);
+			root.rightChild = insert(root.rightChild, node);
+			root.rightChild.parent = root;
 		}
-		return rootValue;
+		return root;
 	}
 
-	private void splay(WithParentBinaryNode<T> node) {
-		while (node.parent().hasValue()) {
-			WithParentBinaryNode<T> parent = node.parent().value();
-			if (parent.parent().isEmpty()) {
-				if (parent.left().hasValue() && parent.left().value().equals(node)) {
+	private void splay(SplayBinaryNode<T> node) {
+		while (!node.isRoot()) {
+			SplayBinaryNode<T> parent = node.parent;
+			if (parent.isRoot()) {
+				if (parent.hasLeftChild() && parent.leftChild.equals(node)) {
 					rotateRight(parent);
 				} else {
 					rotateLeft(parent);
 				}
 			} else if (isLeftZigZig(parent, node)) {
-				rotateRight(parent.parent().value());
+				rotateRight(parent.parent);
 				rotateRight(parent);
 			} else if (isRightZigZig(parent, node)) {
-				rotateLeft(parent.parent().value());
+				rotateLeft(parent.parent);
 				rotateLeft(parent);
 			} else if (isRightLeftZigZag(parent, node)) {
 				rotateRight(parent);
-				rotateLeft(node.parent().value());
+				rotateLeft(node.parent);
 			} else {
 				rotateLeft(parent);
-				rotateRight(node.parent().value());
+				rotateRight(node.parent);
 			}
 		}
 	}
 
-	private boolean isLeftZigZig(WithParentBinaryNode<T> parent, WithParentBinaryNode<T> node) {
-		return parent.left().hasValue() && parent.left().value().equals(node)
-				&& parent.parent().value().left().value().equals(parent);
+	private boolean isLeftZigZig(SplayBinaryNode<T> parent, SplayBinaryNode<T> node) {
+		return parent.hasLeftChild() && parent.leftChild.equals(node) && parent.equals(parent.parent.leftChild);
 	}
 
-	private boolean isRightZigZig(WithParentBinaryNode<T> parent, WithParentBinaryNode<T> node) {
-		return parent.right().hasValue() && parent.right().value().equals(node)
-				&& parent.parent().value().right().value().equals(parent);
+	private boolean isRightZigZig(SplayBinaryNode<T> parent, SplayBinaryNode<T> node) {
+		return parent.hasRightChild() && parent.rightChild.equals(node) && parent.equals(parent.parent.rightChild);
 	}
 
-	private boolean isRightLeftZigZag(WithParentBinaryNode<T> parent, WithParentBinaryNode<T> node) {
-		return parent.left().hasValue() && parent.left().value().equals(node)
-				&& parent.parent().value().right().hasValue() && parent.parent().value().right().value().equals(parent);
+	private boolean isRightLeftZigZag(SplayBinaryNode<T> parent, SplayBinaryNode<T> node) {
+		return parent.hasLeftChild() && parent.leftChild.equals(node) && parent.equals(parent.parent.rightChild);
 	}
 
 	@Override
 	public void delete(T data) {
-		Potential<WithParentBinaryNode<T>> deleted = deleted(new Potential<>(this.root).value(), data);
-		boolean newRoot = deleted.hasValue() && deleted.value().data().compareTo(this.root.value().data()) != 0;
+		SplayBinaryNode<T> deleted = delete(root, data);
+		boolean newRoot = deleted != null && deleted.data.compareTo(root.data) != 0;
 		if (newRoot) {
-			this.root.revalue(deleted.value());
+			root = deleted;
 		}
 	}
 
-	private Potential<WithParentBinaryNode<T>> deleted(Potential<WithParentBinaryNode<T>> root, T data) {
-		if (root.isEmpty()) {
-			return root;
+	private SplayBinaryNode<T> delete(SplayBinaryNode<T> root, T data) {
+		if (root == null) {
+			return null;
 		}
-		WithParentBinaryNode<T> rootValue = root.value();
-		int comparisonValue = rootValue.data().compareTo(data);
+		int comparisonValue = root.data.compareTo(data);
 		if (comparisonValue > 0) {
-			rootValue.changeLeft(deleted(rootValue.left(), data));
+			root.leftChild = delete(root.leftChild, data);
 		} else if (comparisonValue < 0) {
-			rootValue.changeRight(deleted(rootValue.right(), data));
-		} else if (rootValue.left().isEmpty()) {
-			if (rootValue.right().hasValue()) {
-				rootValue.right().value().changeParent(rootValue.parent());
+			root.rightChild = delete(root.rightChild, data);
+		} else if (!root.hasLeftChild()) {
+			if (root.hasRightChild()) {
+				root.rightChild.parent = root.parent;
 			}
-			root = rootValue.right();
-		} else if (rootValue.right().isEmpty()) {
-			if (rootValue.left().hasValue()) {
-				rootValue.left().value().changeParent(rootValue.parent());
+			root = root.rightChild;
+		} else if (!root.hasRightChild()) {
+			if (root.hasLeftChild()) {
+				root.leftChild.parent = root.parent;
 			}
-			root = rootValue.left();
+			root = root.leftChild;
 		} else {
-			T successor = min(rootValue.right().value());
-			rootValue.changeRight(deleted(rootValue.right(), successor));
-			rootValue.data(successor);
+			T successor = min(root.rightChild);
+			root.rightChild = delete(root.rightChild, successor);
+			root.data = successor;
 		}
 		return root;
 	}
 
-	private void rotateLeft(WithParentBinaryNode<T> node) {
-		WithParentBinaryNode<T> rightNode = node.right().value();
-		node.changeRight(rightNode.left());
-		if (node.right().hasValue()) {
-			node.right().value().changeParent(node);
+	private void rotateLeft(SplayBinaryNode<T> node) {
+		SplayBinaryNode<T> rightNode = node.rightChild;
+		node.rightChild = rightNode.leftChild;
+		if (node.hasRightChild()) {
+			node.rightChild.parent = node;
 		}
-		rightNode.changeParent(node.parent());
-		if (rightNode.parent().isEmpty()) {
-			this.root.revalue(rightNode);
-		} else if (node.parent().value().left().hasValue() && node.equals(node.parent().value().left().value())) {
-			node.parent().value().changeLeft(rightNode);
+
+		SplayBinaryNode<T> parent = node.parent;
+		rightNode.parent = parent;
+		if (rightNode.isRoot()) {
+			root = rightNode;
+		} else if (parent.hasLeftChild() && node.equals(parent.leftChild)) {
+			parent.leftChild = rightNode;
 		} else {
-			node.parent().value().changeRight(rightNode);
+			parent.rightChild = rightNode;
 		}
-		rightNode.changeLeft(node);
-		node.changeParent(rightNode);
+
+		rightNode.leftChild = node;
+		node.parent = rightNode;
 	}
 
-	private void rotateRight(WithParentBinaryNode<T> node) {
+	private void rotateRight(SplayBinaryNode<T> node) {
 		System.out.println("Rotating to the right = " + node);
-		WithParentBinaryNode<T> leftNode = node.left().value();
-		node.changeLeft(leftNode.right());
-		if (node.left().hasValue()) {
-			node.left().value().changeParent(node);
+		SplayBinaryNode<T> leftNode = node.leftChild;
+		node.leftChild = leftNode.rightChild;
+		if (node.hasLeftChild()) {
+			node.leftChild.parent = node;
 		}
-		leftNode.changeParent(node.parent());
-		if (leftNode.parent().isEmpty()) {
-			this.root.revalue(leftNode);
-		} else if (node.parent().value().left().hasValue() && node.equals(node.parent().value().left().value())) {
-			node.parent().value().changeLeft(leftNode);
+
+		SplayBinaryNode<T> parent = node.parent;
+		leftNode.parent = parent;
+		if (leftNode.isRoot()) {
+			root = leftNode;
+		} else if (parent.hasLeftChild() && node.equals(parent.leftChild)) {
+			parent.leftChild = leftNode;
 		} else {
-			node.parent().value().changeRight(leftNode);
+			parent.rightChild = leftNode;
 		}
-		leftNode.changeRight(node);
-		node.changeParent(leftNode);
+
+		leftNode.leftChild = node;
+		node.parent = leftNode;
 	}
 
 	@Override
-	public T search(T data) {
-		WithParentBinaryNode<T> node = search(this.root.value(), data);
+	public boolean contains(T data) {
+		SplayBinaryNode<T> node = search(root, data);
+		if (node == null) {
+			return false;
+		}
 		splay(node);
-		return node.data();
+		return true;
 	}
 
-	private WithParentBinaryNode<T> search(WithParentBinaryNode<T> root, T data) {
-		System.out.println("SplayTree.search()");
-		int comparison = data.compareTo(root.data());
-		WithParentBinaryNode<T> found;
+	private SplayBinaryNode<T> search(SplayBinaryNode<T> root, T data) {
+		int comparison = data.compareTo(root.data);
+		SplayBinaryNode<T> found;
 		if (comparison == 0) {
 			found = root;
-		} else if (comparison > 0) {
-			found = search(root.right().value(), data);
+		} else if (comparison > 0 && root.hasRightChild()) {
+			found = search(root.rightChild, data);
+		} else if (root.hasLeftChild()) {
+			found = search(root.leftChild, data);
 		} else {
-			found = search(root.left().value(), data);
+			found = null;
 		}
 		return found;
 	}
 
 	@Override
 	public T min() {
-		return min(this.root.value());
+		return min(root);
 	}
 
-	private T min(WithParentBinaryNode<T> root) {
-		if (root.left().hasValue()) {
-			return min(root.left().value());
+	private T min(SplayBinaryNode<T> root) {
+		if (root.hasLeftChild()) {
+			return min(root.leftChild);
 		}
-		return root.data();
+		return root.data;
 	}
 
 	@Override
 	public T max() {
-		return max(this.root.value());
+		return max(root);
 	}
 
-	private T max(WithParentBinaryNode<T> root) {
-		if (root.right().hasValue()) {
-			return max(root.right().value());
+	private T max(SplayBinaryNode<T> root) {
+		if (root.hasRightChild()) {
+			return max(root.rightChild);
 		}
-		return root.data();
+		return root.data;
 	}
 
 	@Override
-	public Iterable<T> items() {
-		List<T> items;
-		try {
-			items = items(this.root.value(), new ArrayList<>());
-		} catch (Exception e) {
-			items = new ArrayList<>();
-		}
-		return items;
+	public List<T> items() {
+		return root == null ? new ArrayList<>() : items(root, new ArrayList<>());
 	}
 
-	private List<T> items(WithParentBinaryNode<T> root, List<T> items) throws Exception {
-		if (root.left().hasValue()) {
-			items(root.left().value(), items);
+	private List<T> items(SplayBinaryNode<T> root, List<T> items) {
+		if (root.hasLeftChild()) {
+			items(root.leftChild, items);
 		}
-		items.add(root.data());
-		if (root.right().hasValue()) {
-			items(root.right().value(), items);
+		items.add(root.data);
+		if (root.hasRightChild()) {
+			items(root.rightChild, items);
 		}
 		return items;
 	}
 
 	@Override
-	public void traverse() {
-		try {
-			System.out.println("Root = " + this.root.value());
-			traverse(this.root.value());
-		} catch (Exception e) {
-			e.printStackTrace();
+	public void traverse(Consumer<T> itemConsumer) {
+		if (root != null) {
+			traverse(root, itemConsumer);
 		}
 	}
 
-	private void traverse(WithParentBinaryNode<T> root) throws Exception {
-		if (root.left().hasValue()) {
-			traverse(root.left().value());
+	private void traverse(SplayBinaryNode<T> root, Consumer<T> itemConsumer) {
+		if (root.hasLeftChild()) {
+			traverse(root.leftChild, itemConsumer);
 		}
-		System.out.println(root);
-		if (root.right().hasValue()) {
-			traverse(root.right().value());
+		itemConsumer.accept(root.data);
+		if (root.hasRightChild()) {
+			traverse(root.rightChild, itemConsumer);
 		}
 	}
-
 }

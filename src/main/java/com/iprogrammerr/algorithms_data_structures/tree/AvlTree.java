@@ -2,15 +2,16 @@ package com.iprogrammerr.algorithms_data_structures.tree;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
-import com.iprogrammerr.algorithms_data_structures.tree.node.WithHeightBinaryNode;
+import com.iprogrammerr.algorithms_data_structures.tree.node.AvlBinaryNode;
 
 public class AvlTree<T extends Comparable<T>> implements Tree<T> {
 
-	private WithHeightBinaryNode<T> root;
+	private AvlBinaryNode<T> root;
 
-	public AvlTree(T root) {
-		this.root = new WithHeightBinaryNode<>(root);
+	public AvlTree(T data) {
+		root = new AvlBinaryNode<>(data);
 	}
 
 	public AvlTree() {
@@ -18,13 +19,13 @@ public class AvlTree<T extends Comparable<T>> implements Tree<T> {
 	}
 
 	@Override
-	public void insert(T data) {
+	public void put(T data) {
 		root = insert(root, data);
 	}
 
-	private WithHeightBinaryNode<T> insert(WithHeightBinaryNode<T> root, T data) {
+	private AvlBinaryNode<T> insert(AvlBinaryNode<T> root, T data) {
 		if (root == null) {
-			return new WithHeightBinaryNode<>(data);
+			return new AvlBinaryNode<>(data);
 		}
 		int comparisonValue = data.compareTo(root.data);
 		if (comparisonValue == 0) {
@@ -39,12 +40,12 @@ public class AvlTree<T extends Comparable<T>> implements Tree<T> {
 		return settleInsertion(root, data);
 	}
 
-	private WithHeightBinaryNode<T> settleInsertion(WithHeightBinaryNode<T> node, T data) {
+	private AvlBinaryNode<T> settleInsertion(AvlBinaryNode<T> node, T data) {
 		int balance = balance(node);
 		if (balance >= -1 && balance <= 1) {
 			return node;
 		}
-		WithHeightBinaryNode<T> settled;
+		AvlBinaryNode<T> settled;
 		int comparisonValue;
 		if (balance > 1) {
 			comparisonValue = data.compareTo(node.leftChild.data);
@@ -62,7 +63,7 @@ public class AvlTree<T extends Comparable<T>> implements Tree<T> {
 		return settled;
 	}
 
-	private int balance(WithHeightBinaryNode<T> node) {
+	private int balance(AvlBinaryNode<T> node) {
 		if (node == null) {
 			return 0;
 		}
@@ -73,7 +74,7 @@ public class AvlTree<T extends Comparable<T>> implements Tree<T> {
 		return balance(root);
 	}
 
-	private int height(WithHeightBinaryNode<T> node) {
+	private int height(AvlBinaryNode<T> node) {
 		if (node == null) {
 			return -1;
 		}
@@ -82,9 +83,9 @@ public class AvlTree<T extends Comparable<T>> implements Tree<T> {
 		return (leftHeight > rightHeight ? leftHeight : rightHeight) + 1;
 	}
 
-	private WithHeightBinaryNode<T> rightRotation(WithHeightBinaryNode<T> node) {
-		WithHeightBinaryNode<T> leftNode = node.leftChild;
-		WithHeightBinaryNode<T> leftRightNode = leftNode.rightChild;
+	private AvlBinaryNode<T> rightRotation(AvlBinaryNode<T> node) {
+		AvlBinaryNode<T> leftNode = node.leftChild;
+		AvlBinaryNode<T> leftRightNode = leftNode.rightChild;
 
 		node.leftChild = leftRightNode;
 		leftNode.rightChild = node;
@@ -94,9 +95,9 @@ public class AvlTree<T extends Comparable<T>> implements Tree<T> {
 		return leftNode;
 	}
 
-	private WithHeightBinaryNode<T> leftRotation(WithHeightBinaryNode<T> node) {
-		WithHeightBinaryNode<T> rightNode = node.rightChild;
-		WithHeightBinaryNode<T> rightLeftNode = rightNode.leftChild;
+	private AvlBinaryNode<T> leftRotation(AvlBinaryNode<T> node) {
+		AvlBinaryNode<T> rightNode = node.rightChild;
+		AvlBinaryNode<T> rightLeftNode = rightNode.leftChild;
 
 		node.rightChild = rightLeftNode;
 		rightNode.leftChild = node;
@@ -108,17 +109,14 @@ public class AvlTree<T extends Comparable<T>> implements Tree<T> {
 
 	@Override
 	public void delete(T data) {
-		if (root == null) {
-			return;
-		}
-		WithHeightBinaryNode<T> deleted = delete(root, data);
+		AvlBinaryNode<T> deleted = delete(root, data);
 		boolean newRoot = deleted != null && deleted.data.compareTo(root.data) != 0;
 		if (newRoot) {
 			root = deleted;
 		}
 	}
 
-	private WithHeightBinaryNode<T> delete(WithHeightBinaryNode<T> root, T data) {
+	private AvlBinaryNode<T> delete(AvlBinaryNode<T> root, T data) {
 		if (root == null) {
 			return root;
 		}
@@ -143,7 +141,7 @@ public class AvlTree<T extends Comparable<T>> implements Tree<T> {
 		return settleDeletion(root);
 	}
 
-	private WithHeightBinaryNode<T> settleDeletion(WithHeightBinaryNode<T> node) {
+	private AvlBinaryNode<T> settleDeletion(AvlBinaryNode<T> node) {
 		int balance = balance(node);
 		if (balance >= -1 && balance <= 1) {
 			return node;
@@ -163,13 +161,13 @@ public class AvlTree<T extends Comparable<T>> implements Tree<T> {
 	}
 
 	@Override
-	public T search(T data) {
-		return search(root, data).data;
+	public boolean contains(T data) {
+		return search(root, data) != null;
 	}
 
-	private WithHeightBinaryNode<T> search(WithHeightBinaryNode<T> root, T data) {
+	private AvlBinaryNode<T> search(AvlBinaryNode<T> root, T data) {
 		int comparisonValue = root.data.compareTo(data);
-		WithHeightBinaryNode<T> foundNode;
+		AvlBinaryNode<T> foundNode;
 		if (comparisonValue == 0) {
 			foundNode = root;
 		} else if (comparisonValue > 0 && root.hasLeftChild()) {
@@ -177,7 +175,7 @@ public class AvlTree<T extends Comparable<T>> implements Tree<T> {
 		} else if (comparisonValue < 0 && root.hasRightChild()) {
 			foundNode = search(root.rightChild, data);
 		} else {
-			throw new RuntimeException("Needed data is not present");
+			foundNode = null;
 		}
 		return foundNode;
 	}
@@ -187,7 +185,7 @@ public class AvlTree<T extends Comparable<T>> implements Tree<T> {
 		return min(root);
 	}
 
-	private T min(WithHeightBinaryNode<T> root) {
+	private T min(AvlBinaryNode<T> root) {
 		if (root.hasLeftChild()) {
 			return min(root.leftChild);
 		}
@@ -199,7 +197,7 @@ public class AvlTree<T extends Comparable<T>> implements Tree<T> {
 		return max(root);
 	}
 
-	private T max(WithHeightBinaryNode<T> root) {
+	private T max(AvlBinaryNode<T> root) {
 		if (root.hasRightChild()) {
 			return max(root.rightChild);
 		}
@@ -207,11 +205,11 @@ public class AvlTree<T extends Comparable<T>> implements Tree<T> {
 	}
 
 	@Override
-	public Iterable<T> items() {
+	public List<T> items() {
 		return root == null ? new ArrayList<>() : items(root, new ArrayList<>());
 	}
 
-	private List<T> items(WithHeightBinaryNode<T> root, List<T> items) {
+	private List<T> items(AvlBinaryNode<T> root, List<T> items) {
 		if (root.hasLeftChild()) {
 			items(root.leftChild, items);
 		}
@@ -223,20 +221,19 @@ public class AvlTree<T extends Comparable<T>> implements Tree<T> {
 	}
 
 	@Override
-	public void traverse() {
+	public void traverse(Consumer<T> itemConsumer) {
 		if (root != null) {
-			System.out.println("Root = " + root);
-			traverse(root);
+			traverse(root, itemConsumer);
 		}
 	}
 
-	private void traverse(WithHeightBinaryNode<T> node) {
+	private void traverse(AvlBinaryNode<T> node, Consumer<T> itemConsumer) {
 		if (node.hasLeftChild()) {
-			traverse(node.leftChild);
+			traverse(node.leftChild, itemConsumer);
 		}
-		System.out.println(node.data);
+		itemConsumer.accept(node.data);
 		if (node.hasRightChild()) {
-			traverse(node.rightChild);
+			traverse(node.rightChild, itemConsumer);
 		}
 	}
 }

@@ -2,405 +2,294 @@ package com.iprogrammerr.algorithms_data_structures.tree;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
-import com.iprogrammerr.algorithms_data_structures.model.Potential;
-import com.iprogrammerr.algorithms_data_structures.tree.node.ColoredBinaryNode;
-import com.iprogrammerr.algorithms_data_structures.tree.node.RedBlackTreeNode;
+import com.iprogrammerr.algorithms_data_structures.tree.node.RedBlackBinaryNode;
 
-public final class RedBlackTree<T extends Comparable<T>> implements Tree<T> {
+public class RedBlackTree<T extends Comparable<T>> implements Tree<T> {
 
-	private static final String RED = "red";
-	private static final String BLACK = "black";
-	private final Potential<ColoredBinaryNode<T>> root;
-
-	public RedBlackTree(Potential<ColoredBinaryNode<T>> root) {
-		this.root = root;
-	}
+	private RedBlackBinaryNode<T> root;
 
 	public RedBlackTree(T data) {
-		this(new Potential<>(new RedBlackTreeNode<>(data)));
+		root = new RedBlackBinaryNode<T>(data);
 	}
 
 	public RedBlackTree() {
-		this(new Potential<>());
+
 	}
 
 	@Override
-	public void insert(T data) {
-		ColoredBinaryNode<T> node = new RedBlackTreeNode<>(data);
-		this.root.revalue(insert(this.root, node));
+	public void put(T data) {
+		RedBlackBinaryNode<T> node = new RedBlackBinaryNode<>(data);
+		root = insert(root, node);
 		if (hasGrandParent(node)) {
 			fixViolations(node);
 		}
 	}
 
-	private ColoredBinaryNode<T> insert(Potential<ColoredBinaryNode<T>> root, ColoredBinaryNode<T> node) {
-		if (root.isEmpty()) {
+	private RedBlackBinaryNode<T> insert(RedBlackBinaryNode<T> root, RedBlackBinaryNode<T> node) {
+		if (root == null) {
 			return node;
 		}
-		ColoredBinaryNode<T> rootValue = root.value();
-		int comparisonValue = node.data().compareTo(rootValue.data());
+		int comparisonValue = node.data.compareTo(root.data);
 		if (comparisonValue == 0) {
 			throw new RuntimeException("Duplicated values are not allowed");
 		}
 		if (comparisonValue < 0) {
-			rootValue.changeLeft(insert(rootValue.left(), node));
-			rootValue.left().value().changeParent(rootValue);
+			root.leftChild = insert(root.leftChild, node);
+			root.leftChild.parent = root;
 		} else {
-			rootValue.changeRight(insert(rootValue.right(), node));
-			rootValue.right().value().changeParent(rootValue);
+			root.rightChild = insert(root.rightChild, node);
+			root.rightChild.parent = root;
 		}
-		return rootValue;
+		return root;
 	}
 
-	private boolean hasGrandParent(ColoredBinaryNode<T> node) {
-		return node.parent().hasValue() && node.parent().value().parent().hasValue();
+	private boolean hasGrandParent(RedBlackBinaryNode<T> node) {
+		return !node.isRoot() && !node.parent.isRoot();
 	}
 
-	private void fixViolations(ColoredBinaryNode<T> node) {
+	private void fixViolations(RedBlackBinaryNode<T> node) {
 		while (shouldFixViolation(node)) {
-			ColoredBinaryNode<T> parent = node.parent().value();
-			ColoredBinaryNode<T> grandParent = parent.parent().value();
-			if (grandParent.left().hasValue() && parent.equals(grandParent.left().value())) {
+			RedBlackBinaryNode<T> parent = node.parent;
+			RedBlackBinaryNode<T> grandParent = parent.parent;
+			if (grandParent.hasLeftChild() && parent.equals(grandParent.leftChild)) {
 				node = fixLeftChildViolation(grandParent, parent, node);
 			} else {
 				node = fixRightChildViolation(grandParent, parent, node);
 			}
 		}
-		if (this.root.value().color().equals(RED)) {
-			this.root.value().changeColor(BLACK);
+		if (root.isRed()) {
+			root.setBlack();
 		}
 	}
 
-	private boolean shouldFixViolation(ColoredBinaryNode<T> node) {
-		return !node.equals(this.root.value()) && node.color().equals(RED) && node.parent().value().color().equals(RED);
+	private boolean shouldFixViolation(RedBlackBinaryNode<T> node) {
+		return !node.equals(root) && node.isRed() && isRed(node.parent);
 	}
 
-	private ColoredBinaryNode<T> fixLeftChildViolation(ColoredBinaryNode<T> grandParent, ColoredBinaryNode<T> parent,
-			ColoredBinaryNode<T> node) {
-		Potential<ColoredBinaryNode<T>> uncle = grandParent.right();
+	public boolean hasViolations() {
+		boolean has = false;
+		if (root != null) {
+			try {
+				traverseNodes(root, n -> {
+					if (shouldFixViolation(n)) {
+						throw new RuntimeException("Violation!");
+					}
+				});
+			} catch (Exception e) {
+				has = true;
+			}
+		}
+		return has;
+	}
+
+	private RedBlackBinaryNode<T> fixLeftChildViolation(RedBlackBinaryNode<T> grandParent, RedBlackBinaryNode<T> parent,
+		RedBlackBinaryNode<T> node) {
+		RedBlackBinaryNode<T> uncle = grandParent.rightChild;
 		if (isRed(uncle)) {
-			grandParent.changeColor(RED);
-			parent.changeColor(BLACK);
-			uncle.value().changeColor(BLACK);
+			grandParent.setRed();
+			parent.setBlack();
+			uncle.setBlack();
 			node = grandParent;
 		} else {
-			if (parent.right().hasValue() && node.equals(parent.right().value())) {
+			if (parent.hasRightChild() && node.equals(parent.rightChild)) {
 				rotateLeft(parent);
 				node = parent;
-				parent = node.parent().value();
+				parent = node.parent;
 			}
 			rotateRight(grandParent);
-			String parentColor = parent.color();
-			parent.changeColor(grandParent.color());
-			grandParent.changeColor(parentColor);
+			boolean redParent = parent.isRed();
+			parent.setRed(grandParent.isRed());
+			grandParent.setRed(redParent);
 			node = parent;
 		}
 		return node;
 	}
 
-	private ColoredBinaryNode<T> fixRightChildViolation(ColoredBinaryNode<T> grandParent, ColoredBinaryNode<T> parent,
-			ColoredBinaryNode<T> node) {
-		Potential<ColoredBinaryNode<T>> uncle = grandParent.left();
+	private RedBlackBinaryNode<T> fixRightChildViolation(RedBlackBinaryNode<T> grandParent,
+		RedBlackBinaryNode<T> parent, RedBlackBinaryNode<T> node) {
+		RedBlackBinaryNode<T> uncle = grandParent.leftChild;
 		if (isRed(uncle)) {
-			grandParent.changeColor(RED);
-			parent.changeColor(BLACK);
-			uncle.value().changeColor(BLACK);
+			grandParent.setRed();
+			parent.setBlack();
+			uncle.setBlack();
 			node = grandParent;
 		} else {
-			if (parent.left().hasValue() && node.equals(parent.left().value())) {
+			if (parent.hasLeftChild() && node.equals(parent.leftChild)) {
 				rotateRight(parent);
 				node = parent;
-				parent = node.parent().value();
+				parent = node.parent;
 			}
 			rotateLeft(grandParent);
-			String parentColor = parent.color();
-			parent.changeColor(grandParent.color());
-			grandParent.changeColor(parentColor);
+			boolean redParent = parent.isRed();
+			parent.setRed(grandParent.isRed());
+			grandParent.setRed(redParent);
 			node = parent;
 		}
 		return node;
 	}
 
-	private void rotateRight(ColoredBinaryNode<T> node) {
-		ColoredBinaryNode<T> leftNode = node.left().value();
-		node.changeLeft(leftNode.right());
-		if (node.left().hasValue()) {
-			node.left().value().changeParent(node);
+	private void rotateRight(RedBlackBinaryNode<T> node) {
+		RedBlackBinaryNode<T> leftNode = node.leftChild;
+		node.leftChild = leftNode.rightChild;
+		if (node.hasLeftChild()) {
+			node.leftChild.parent = node;
 		}
-		leftNode.changeParent(node.parent());
-		if (leftNode.parent().isEmpty()) {
-			this.root.revalue(leftNode);
-		} else if (node.parent().value().left().hasValue() && node.equals(node.parent().value().left().value())) {
-			node.parent().value().changeLeft(leftNode);
+
+		RedBlackBinaryNode<T> parent = node.parent;
+		leftNode.parent = parent;
+		if (leftNode.isRoot()) {
+			root = leftNode;
+		} else if (parent.hasLeftChild() && node.equals(parent.leftChild)) {
+			parent.leftChild = leftNode;
 		} else {
-			node.parent().value().changeRight(leftNode);
+			parent.rightChild = leftNode;
 		}
-		leftNode.changeRight(node);
-		node.changeParent(leftNode);
+
+		leftNode.rightChild = node;
+		node.parent = leftNode;
 	}
 
-	private void rotateLeft(ColoredBinaryNode<T> node) {
-		ColoredBinaryNode<T> rightNode = node.right().value();
-		node.changeRight(rightNode.left());
-		if (node.right().hasValue()) {
-			node.right().value().changeParent(node);
+	private void rotateLeft(RedBlackBinaryNode<T> node) {
+		RedBlackBinaryNode<T> rightNode = node.rightChild;
+		node.rightChild = rightNode.leftChild;
+		if (node.hasRightChild()) {
+			node.rightChild.parent = node;
 		}
-		rightNode.changeParent(node.parent());
-		if (rightNode.parent().isEmpty()) {
-			this.root.revalue(rightNode);
-		} else if (node.parent().value().left().hasValue() && node.equals(node.parent().value().left().value())) {
-			node.parent().value().changeLeft(rightNode);
+
+		RedBlackBinaryNode<T> parent = node.parent;
+		rightNode.parent = parent;
+		if (rightNode.isRoot()) {
+			root = rightNode;
+		} else if (parent.hasLeftChild() && node.equals(parent.leftChild)) {
+			parent.leftChild = rightNode;
 		} else {
-			node.parent().value().changeRight(rightNode);
+			parent.rightChild = rightNode;
 		}
-		rightNode.changeLeft(node);
-		node.changeParent(rightNode);
+
+		rightNode.leftChild = node;
+		node.parent = rightNode;
 	}
 
 	@Override
 	public void delete(T data) {
-		Potential<ColoredBinaryNode<T>> deleted = deleted(new Potential<>(this.root).value(), data, true);
-		boolean newRoot = deleted.hasValue() && deleted.value().data().compareTo(this.root.value().data()) != 0;
+		RedBlackBinaryNode<T> deleted = delete(root, data);
+		if (deleted == null) {
+			return;
+		}
+		boolean newRoot = deleted.data.compareTo(root.data) != 0;
 		if (newRoot) {
-			this.root.revalue(deleted.value());
+			root = deleted;
 		}
 	}
 
 	// TODO in future - proper red black tree delete
-	private Potential<ColoredBinaryNode<T>> deleted(Potential<ColoredBinaryNode<T>> root, T data, boolean caseOne) {
-		if (!root.isEmpty()) {
+	private RedBlackBinaryNode<T> delete(RedBlackBinaryNode<T> root, T data) {
+		if (root == null) {
 			return root;
 		}
-		ColoredBinaryNode<T> rootValue = root.value();
-		int comparisonValue = rootValue.data().compareTo(data);
+		int comparisonValue = root.data.compareTo(data);
 		if (comparisonValue > 0) {
-			rootValue.changeLeft(deleted(rootValue.left(), data, true));
+			root.leftChild = delete(root.leftChild, data);
 		} else if (comparisonValue < 0) {
-			rootValue.changeRight(deleted(rootValue.right(), data, true));
-		} else if (rootValue.left().isEmpty()) {
-			System.out.println("Delete case left not filled");
-			if (rootValue.right().hasValue()) {
-				rootValue.right().value().changeParent(rootValue.parent());
-				System.out.println("But have right..");
-				deleteCaseOne(rootValue);
+			root.rightChild = delete(root.rightChild, data);
+		} else if (!root.hasLeftChild()) {
+			if (root.hasRightChild()) {
+				root.rightChild.parent = root.parent;
 			}
-			root = rootValue.right();
-		} else if (rootValue.right().isEmpty()) {
-			System.out.println("Delete case right not filled");
-			if (rootValue.left().hasValue()) {
-				rootValue.left().value().changeParent(rootValue.parent());
-				System.out.println("But have left...");
-				deleteCaseOne(rootValue);
+			root = root.rightChild;
+		} else if (!root.hasRightChild()) {
+			if (root.hasLeftChild()) {
+				root.leftChild.parent = root.parent;
 			}
-			root = rootValue.left();
+			root = root.leftChild;
 		} else {
-			System.out.println("Delete case left and right filled");
-			T successor = min(rootValue.right().value());
-			rootValue.changeRight(deleted(rootValue.right(), successor, false));
-			rootValue.data(successor);
+			T successor = min(root.rightChild);
+			root.rightChild = delete(root.rightChild, successor);
+			root.data = successor;
 		}
 		return root;
 	}
 
-	private void deleteCaseOne(ColoredBinaryNode<T> node) {
-		System.out.println("RedBlackTree.deleteCaseOne()");
-		if (node.parent().isEmpty()) {
-			deleteCaseTwo(node);
-		}
-	}
-
-	private void deleteCaseTwo(ColoredBinaryNode<T> node) {
-		System.out.println("RedBlackTree.deleteCaseTwo()");
-		Potential<ColoredBinaryNode<T>> sibling = sibling(node);
-		System.out.println("Sibling" + sibling);
-		if (isRed(sibling)) {
-			node.parent().value().changeColor(RED);
-			sibling.value().changeColor(BLACK);
-			if (node.parent().value().left().isEmpty() && node.equals(node.parent().value().left().value())) {
-				rotateLeft(node.parent().value());
-			} else {
-				rotateRight(node.parent().value());
-			}
-		}
-		deleteCaseThree(node);
-	}
-
-	private void deleteCaseThree(ColoredBinaryNode<T> node) {
-		System.out.println("RedBlackTree.deleteCaseThree()");
-		Potential<ColoredBinaryNode<T>> sibling = sibling(node);
-		boolean caseOne = node.parent().value().color().equals(BLACK) && sibling.isEmpty()
-				&& (sibling.value().color().equals(BLACK))
-				&& (!sibling.value().left().isEmpty() || sibling.value().left().value().color().equals(BLACK))
-				&& (!sibling.value().right().isEmpty() || sibling.value().right().value().color().equals(BLACK));
-		if (caseOne) {
-			sibling.value().changeColor(RED);
-			deleteCaseOne(node.parent().value());
-		} else {
-			deleteCaseFour(node);
-		}
-	}
-
-	private void deleteCaseFour(ColoredBinaryNode<T> node) {
-		System.out.println("RedBlackTree.deleteCaseFour()");
-		Potential<ColoredBinaryNode<T>> sibling = sibling(node);
-		boolean end = isRed(node.parent()) && sibling.isEmpty() && (sibling.value().color().equals(BLACK))
-				&& (!sibling.value().left().isEmpty() || sibling.value().left().value().color().equals(BLACK))
-				&& (!sibling.value().right().isEmpty() || sibling.value().right().value().color().equals(BLACK));
-		if (end) {
-			sibling.value().changeColor(RED);
-			node.parent().value().changeColor(BLACK);
-		} else {
-			deleteCaseFive(node);
-		}
-	}
-
-	private void deleteCaseFive(ColoredBinaryNode<T> node) {
-		System.out.println("RedBlackTree.deleteCaseFive()");
-		Potential<ColoredBinaryNode<T>> sibling = sibling(node);
-		if (sibling.isEmpty() && sibling.value().color().equals(BLACK)) {
-			if (isLeftChild(node) && isBlack(node.right()) && isRed(node.left())) {
-				sibling.value().changeColor(RED);
-				sibling.value().left().value().changeColor(BLACK);
-				rotateRight(sibling.value());
-			} else if (isRightChild(node) && isRed(node.right()) && isBlack(node.left())) {
-				sibling.value().changeColor(RED);
-				sibling.value().right().value().changeColor(BLACK);
-				rotateLeft(sibling.value());
-			}
-		}
-		deleteCaseSix(node);
-	}
-
-	private void deleteCaseSix(ColoredBinaryNode<T> node) {
-		System.out.println("RedBlackTree.deleteCaseSix()");
-		Potential<ColoredBinaryNode<T>> sibling = sibling(node);
-		System.out.println("Sibling = " + sibling);
-		System.out.println("node = " + node);
-		sibling.value().changeColor(node.parent().value().color());
-		node.parent().value().changeColor(BLACK);
-		if (isLeftChild(node)) {
-			sibling.value().right().value().changeColor(BLACK);
-			rotateLeft(node.parent().value());
-		} else {
-			sibling.value().left().value().changeColor(BLACK);
-			rotateRight(node.parent().value());
-		}
-	}
-
-	private boolean isLeftChild(ColoredBinaryNode<T> node) {
-		return node.parent().value().left().isEmpty() && node.parent().value().left().value().equals(node);
-	}
-
-	private boolean isRightChild(ColoredBinaryNode<T> node) {
-		return node.parent().value().right().isEmpty() && node.parent().value().right().value().equals(node);
-	}
-
-	private boolean isBlack(Potential<ColoredBinaryNode<T>> node) {
-		return node.isEmpty() || node.value().color().equals(BLACK);
-	}
-
-	private boolean isRed(Potential<ColoredBinaryNode<T>> node) {
-		return node.hasValue() && node.value().color().equals(RED);
-	}
-
-	private Potential<ColoredBinaryNode<T>> sibling(ColoredBinaryNode<T> node) {
-		Potential<ColoredBinaryNode<T>> sibling;
-		if (node.parent().value().left().hasValue() && !node.parent().value().left().value().equals(node)) {
-			sibling = node.parent().value().left();
-		} else if (node.parent().value().right().hasValue() && !node.parent().value().right().value().equals(node)) {
-			sibling = node.parent().value().right();
-		} else {
-			sibling = new Potential<>();
-		}
-		return sibling;
+	private boolean isRed(RedBlackBinaryNode<T> node) {
+		return node != null && node.isRed();
 	}
 
 	@Override
-	public T search(T data) {
-		return search(this.root.value(), data).data();
+	public boolean contains(T data) {
+		return search(root, data) != null;
 	}
 
-	private ColoredBinaryNode<T> search(ColoredBinaryNode<T> root, T data) {
-		int comparisonValue = root.data().compareTo(data);
-		ColoredBinaryNode<T> foundNode;
+	private RedBlackBinaryNode<T> search(RedBlackBinaryNode<T> root, T data) {
+		int comparisonValue = root.data.compareTo(data);
+		RedBlackBinaryNode<T> foundNode;
 		if (comparisonValue == 0) {
 			foundNode = root;
-		} else if (comparisonValue > 0 && root.left().hasValue()) {
-			foundNode = search(root.left().value(), data);
-		} else if (comparisonValue < 0 && root.right().hasValue()) {
-			foundNode = search(root.right().value(), data);
+		} else if (comparisonValue > 0 && root.hasLeftChild()) {
+			foundNode = search(root.leftChild, data);
+		} else if (comparisonValue < 0 && root.hasRightChild()) {
+			foundNode = search(root.rightChild, data);
 		} else {
-			throw new RuntimeException("Needed data is not present");
+			foundNode = null;
 		}
 		return foundNode;
 	}
 
 	@Override
 	public T min() {
-		return min(this.root.value());
+		return min(root);
 	}
 
-	private T min(ColoredBinaryNode<T> root) {
-		if (root.left().hasValue()) {
-			return min(root.left().value());
+	private T min(RedBlackBinaryNode<T> root) {
+		if (root.hasLeftChild()) {
+			return min(root.leftChild);
 		}
-		return root.data();
+		return root.data;
 	}
 
 	@Override
 	public T max() {
-		return max(this.root.value());
+		return max(root);
 	}
 
-	private T max(ColoredBinaryNode<T> root) {
-		if (root.right().hasValue()) {
-			return max(root.right().value());
+	private T max(RedBlackBinaryNode<T> root) {
+		if (root.hasRightChild()) {
+			return max(root.rightChild);
 		}
-		return root.data();
+		return root.data;
 	}
 
 	@Override
-	public Iterable<T> items() {
-		List<T> items = new ArrayList<>();
-		try {
-			items = items(this.root.value(), items);
-		} catch (Exception exception) {
-			throw new RuntimeException(exception);
-		}
-		return items;
+	public List<T> items() {
+		return root == null ? new ArrayList<>() : items(root, new ArrayList<>());
 	}
 
-	private List<T> items(ColoredBinaryNode<T> root, List<T> items) {
-		if (root.left().hasValue()) {
-			items(root.left().value(), items);
+	private List<T> items(RedBlackBinaryNode<T> root, List<T> items) {
+		if (root.hasLeftChild()) {
+			items(root.leftChild, items);
 		}
-		items.add(root.data());
-		if (root.right().hasValue()) {
-			items(root.right().value(), items);
+		items.add(root.data);
+		if (root.hasRightChild()) {
+			items(root.rightChild, items);
 		}
 		return items;
 	}
 
 	@Override
-	public void traverse() {
-		try {
-			if (this.root.hasValue()) {
-				System.out.println("Root = " + this.root);
-				traverse(this.root.value());
-			}
-		} catch (Exception exception) {
-			exception.printStackTrace();
+	public void traverse(Consumer<T> itemConsumer) {
+		if (root != null) {
+			traverseNodes(root, n -> itemConsumer.accept(n.data));
 		}
 	}
 
-	private void traverse(ColoredBinaryNode<T> node) {
-		if (node.left().hasValue()) {
-			traverse(node.left().value());
+	private void traverseNodes(RedBlackBinaryNode<T> node, Consumer<RedBlackBinaryNode<T>> nodeConsumer) {
+		if (node.hasLeftChild()) {
+			traverseNodes(node.leftChild, nodeConsumer);
 		}
-		System.out.println(node);
-		if (node.right().hasValue()) {
-			traverse(node.right().value());
+		nodeConsumer.accept(node);
+		if (node.hasRightChild()) {
+			traverseNodes(node.rightChild, nodeConsumer);
 		}
 	}
 

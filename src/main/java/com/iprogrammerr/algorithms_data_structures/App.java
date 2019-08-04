@@ -7,11 +7,11 @@ public class App {
 
 	public static void main(String[] args) throws Exception {
 		Tree<Integer> tree = new RedBlackTree<>(2);
-		tree.insert(1);
-		tree.insert(4);
-		tree.insert(6);
+		tree.put(1);
+		tree.put(4);
+		tree.put(6);
 		tree.delete(4);
-		tree.search(1);
-		tree.traverse();
+		tree.contains(1);
+		tree.traverse(t -> System.out.println(t));
 	}
 }

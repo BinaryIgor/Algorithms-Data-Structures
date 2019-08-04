@@ -1,18 +1,21 @@
 package com.iprogrammerr.algorithms_data_structures.tree;
 
+import java.util.List;
+import java.util.function.Consumer;
+
 public interface Tree<T extends Comparable<T>> {
 
-	void insert(T data);
+	void put(T data);
 
 	void delete(T data);
 
-	T search(T data);
+	boolean contains(T data);
 
 	T min();
 
 	T max();
 
-	Iterable<T> items();
+	List<T> items();
 
-	void traverse();
+	void traverse(Consumer<T> itemConsumer);
 }

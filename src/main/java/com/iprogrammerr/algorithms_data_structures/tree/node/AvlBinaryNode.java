@@ -1,13 +1,13 @@
 package com.iprogrammerr.algorithms_data_structures.tree.node;
 
-public final class WithHeightBinaryNode<T extends Comparable<T>> {
+public final class AvlBinaryNode<T extends Comparable<T>> {
 
-	public WithHeightBinaryNode<T> leftChild;
-	public WithHeightBinaryNode<T> rightChild;
+	public AvlBinaryNode<T> leftChild;
+	public AvlBinaryNode<T> rightChild;
 	public T data;
 	public int height;
 
-	public WithHeightBinaryNode(WithHeightBinaryNode<T> leftChild, WithHeightBinaryNode<T> rightChild, T data,
+	public AvlBinaryNode(AvlBinaryNode<T> leftChild, AvlBinaryNode<T> rightChild, T data,
 			int height) {
 		this.leftChild = leftChild;
 		this.rightChild = rightChild;
@@ -15,11 +15,11 @@ public final class WithHeightBinaryNode<T extends Comparable<T>> {
 		this.height = height;
 	}
 
-	public WithHeightBinaryNode(T data, int height) {
+	public AvlBinaryNode(T data, int height) {
 		this(null, null, data, height);
 	}
 
-	public WithHeightBinaryNode(T data) {
+	public AvlBinaryNode(T data) {
 		this(data, 0);
 	}
 

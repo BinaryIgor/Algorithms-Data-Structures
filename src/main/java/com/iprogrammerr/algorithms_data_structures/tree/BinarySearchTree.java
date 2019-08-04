@@ -2,6 +2,7 @@ package com.iprogrammerr.algorithms_data_structures.tree;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import com.iprogrammerr.algorithms_data_structures.tree.node.BinaryNode;
 
@@ -18,7 +19,7 @@ public class BinarySearchTree<T extends Comparable<T>> implements Tree<T> {
 	}
 
 	@Override
-	public void insert(T data) {
+	public void put(T data) {
 		root = insert(root, data);
 	}
 
@@ -39,8 +40,8 @@ public class BinarySearchTree<T extends Comparable<T>> implements Tree<T> {
 	}
 
 	@Override
-	public T search(T data) {
-		return search(root, data).data;
+	public boolean contains(T data) {
+		return search(root, data) != null;
 	}
 
 	private BinaryNode<T> search(BinaryNode<T> root, T data) {
@@ -53,7 +54,7 @@ public class BinarySearchTree<T extends Comparable<T>> implements Tree<T> {
 		} else if (comparisonValue < 0 && root.hasRightChild()) {
 			foundNode = search(root.rightChild, data);
 		} else {
-			throw new RuntimeException("Needed data is not present");
+			foundNode = null;
 		}
 		return foundNode;
 	}
@@ -89,7 +90,7 @@ public class BinarySearchTree<T extends Comparable<T>> implements Tree<T> {
 	}
 
 	@Override
-	public Iterable<T> items() {
+	public List<T> items() {
 		return root == null ? new ArrayList<>() : items(root, new ArrayList<>());
 	}
 
@@ -129,19 +130,19 @@ public class BinarySearchTree<T extends Comparable<T>> implements Tree<T> {
 	}
 
 	@Override
-	public void traverse() {
+	public void traverse(Consumer<T> itemConsumer) {
 		if (root != null) {
-			traverse(root);
+			traverse(root, itemConsumer);
 		}
 	}
 
-	private void traverse(BinaryNode<T> node) {
+	private void traverse(BinaryNode<T> node, Consumer<T> itemConsumer) {
 		if (node.hasLeftChild()) {
-			traverse(node.leftChild);
+			traverse(node.leftChild, itemConsumer);
 		}
-		System.out.println(node.data);
+		itemConsumer.accept(node.data);
 		if (node.hasRightChild()) {
-			traverse(node.rightChild);
+			traverse(node.rightChild, itemConsumer);
 		}
 	}
 }

@@ -13,9 +13,16 @@ public class AvlTreeTest {
 		checkBalance(tree);
 	}
 
+	@Test
+	public void traverses() {
+		AvlTree<String> tree = new AvlTree<>();
+		TreesTests.traverses(tree, new String[] { "ad", "ba", "xc" });
+		checkBalance(tree);
+	}
+
 	private void checkBalance(AvlTree<?> tree) {
 		MatcherAssert.assertThat(tree.balance(),
-				Matchers.allOf(Matchers.greaterThanOrEqualTo(-1), Matchers.lessThanOrEqualTo(1)));
+			Matchers.allOf(Matchers.greaterThanOrEqualTo(-1), Matchers.lessThanOrEqualTo(1)));
 	}
 
 	@Test
