@@ -32,23 +32,19 @@ public class AlphabeticalTrie implements Trie {
 
 	@Override
 	public boolean has(String word) {
-		boolean has;
-		try {
-			has = node(word).leaf();
-		} catch (Exception e) {
-			has = false;
-		}
-		return has;
+		TrieNode node = node(word);
+		return node != null && node.leaf();
 	}
 
-	private TrieNode node(String word) throws Exception {
+	private TrieNode node(String word) {
 		TrieNode tmp = this.root;
 		word = word.toLowerCase();
 		for (int i = 0; i < word.length(); ++i) {
 			char c = word.charAt(i);
 			int index = c - 'a';
 			if (tmp.children()[index] == null) {
-				throw new Exception(String.format("There is no any node associated with %s word", word));
+				tmp = null;
+				break;
 			} else {
 				tmp = tmp.children()[index];
 			}
@@ -59,10 +55,9 @@ public class AlphabeticalTrie implements Trie {
 	@Override
 	public List<String> words(String prefix) {
 		List<String> words = new ArrayList<>();
-		try {
-			collect(node(prefix), prefix, words);
-		} catch (Exception e) {
-
+		TrieNode root = node(prefix);
+		if (root != null) {
+			collect(root, prefix, words);
 		}
 		return words;
 	}
@@ -83,7 +78,7 @@ public class AlphabeticalTrie implements Trie {
 		String lcp = "";
 		TrieNode tn = this.root;
 		int idx = tn.singleChildIndex();
-		while (idx > -1 && !tn.leaf()) {
+		while (idx >= 0 && !tn.leaf()) {
 			tn = tn.children()[idx];
 			lcp = lcp + (char) (idx + 'a');
 			idx = tn.singleChildIndex();
