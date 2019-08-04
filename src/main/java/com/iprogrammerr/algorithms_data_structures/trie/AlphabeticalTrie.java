@@ -7,12 +7,12 @@ public class AlphabeticalTrie implements Trie {
 
 	private final TrieNode root;
 
-	public AlphabeticalTrie(TrieNode root) {
-		this.root = root;
+	public AlphabeticalTrie(char root) {
+		this.root = new TrieNode(root);
 	}
 
 	public AlphabeticalTrie() {
-		this(new TrieNode('\0'));
+		this('\0');
 	}
 
 	@Override
