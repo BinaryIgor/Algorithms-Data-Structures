@@ -36,7 +36,7 @@ public final class SimulatedAnnealing {
 			Tour solution = new Tour(current.value());
 			int size = solution.value().size();
 			solution.swap(this.random.nextInt(size), this.random.nextInt(size));
-			if (acceptancePropability(current.distance(), solution.distance(), temp) > this.random.nextDouble()) {
+			if (acceptanceProbability(current.distance(), solution.distance(), temp) > this.random.nextDouble()) {
 				current = solution;
 			}
 			if (current.distance() < best.distance()) {
@@ -53,7 +53,7 @@ public final class SimulatedAnnealing {
 		return new Tour(cities);
 	}
 
-	private double acceptancePropability(double currentEnergy, double newEnergy, double temperature) {
+	private double acceptanceProbability(double currentEnergy, double newEnergy, double temperature) {
 		double prop;
 		if (currentEnergy > newEnergy) {
 			prop = 1;
