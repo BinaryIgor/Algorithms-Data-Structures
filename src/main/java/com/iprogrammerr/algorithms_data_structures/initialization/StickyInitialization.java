@@ -1,27 +1,33 @@
 package com.iprogrammerr.algorithms_data_structures.initialization;
 
-public final class StickyInitialization<T> implements StickableInitialization<T> {
+import java.util.concurrent.Callable;
 
-	private final Initialization<T> base;
-	private T value;
-	private boolean stick;
+public class StickyInitialization<T> implements StickableInitialization<T> {
 
-	public StickyInitialization(Initialization<T> base) {
-		this.base = base;
-		this.stick = false;
-	}
+    private final Callable<T> source;
+    private T value;
+    private boolean stick;
 
-	@Override
-	public T value() {
-		if (this.value == null || !this.stick) {
-			this.value = this.base.value();
-			this.stick = true;
-		}
-		return this.value;
-	}
+    public StickyInitialization(Callable<T> source) {
+        this.source = source;
+        this.stick = false;
+    }
 
-	@Override
-	public void unstick() {
-		this.stick = false;
-	}
+    @Override
+    public T value() {
+        if (value == null || !stick) {
+            try {
+                value = source.call();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            stick = true;
+        }
+        return value;
+    }
+
+    @Override
+    public void unstick() {
+        stick = false;
+    }
 }

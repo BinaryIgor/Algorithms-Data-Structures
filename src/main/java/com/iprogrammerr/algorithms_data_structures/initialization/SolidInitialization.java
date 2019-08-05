@@ -1,21 +1,27 @@
 package com.iprogrammerr.algorithms_data_structures.initialization;
 
-public final class SolidInitialization<T> implements Initialization<T> {
+import java.util.concurrent.Callable;
 
-	private final Initialization<T> base;
-	private T value;
+public class SolidInitialization<T> implements Initialization<T> {
 
-	public SolidInitialization(Initialization<T> base) {
-		this.base = base;
-	}
+    private final Callable<T> source;
+    private T value;
 
-	@Override
-	public T value() {
-		synchronized (this) {
-			if (this.value == null) {
-				this.value = this.base.value();
-			}
-			return this.value;
-		}
-	}
+    public SolidInitialization(Callable<T> source) {
+        this.source = source;
+    }
+
+    @Override
+    public T value() {
+        synchronized (this) {
+            if (value == null) {
+                try {
+                    value = source.call();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            return value;
+        }
+    }
 }

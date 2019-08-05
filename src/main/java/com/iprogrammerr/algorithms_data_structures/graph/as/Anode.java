@@ -1,75 +1,85 @@
 package com.iprogrammerr.algorithms_data_structures.graph.as;
 
+import java.util.Objects;
+
 public final class Anode {
 
-	private final int row;
-	private final int col;
-	private Anode predecessor;
-	private boolean obstacle;
-	private int g;
-	private int h;
+    private final int row;
+    private final int col;
+    private Anode predecessor;
+    private boolean obstacle;
+    private int g;
+    private int h;
 
-	public Anode(int row, int col) {
-		this.row = row;
-		this.col = col;
-	}
+    public Anode(int row, int col) {
+        this.row = row;
+        this.col = col;
+    }
 
-	public boolean isObstacle() {
-		return this.obstacle;
-	}
+    public boolean isObstacle() {
+        return this.obstacle;
+    }
 
-	public int row() {
-		return this.row;
-	}
+    public void setObstacle(boolean obstacle) {
+        this.obstacle = obstacle;
+    }
 
-	public int col() {
-		return this.col;
-	}
+    public int row() {
+        return this.row;
+    }
 
-	public Anode predecessor() {
-		return this.predecessor;
-	}
+    public int col() {
+        return this.col;
+    }
 
-	public int g() {
-		return this.g;
-	}
+    public Anode predecessor() {
+        return this.predecessor;
+    }
 
-	public int h() {
-		return this.h;
-	}
+    public int g() {
+        return this.g;
+    }
 
-	public int f() {
-		return this.g + this.h;
-	}
+    public int h() {
+        return this.h;
+    }
 
-	public void setPredecessor(Anode predecessor) {
-		this.predecessor = predecessor;
-	}
+    public int f() {
+        return this.g + this.h;
+    }
 
-	public void setObstacle(boolean obstacle) {
-		this.obstacle = obstacle;
-	}
+    public void setPredecessor(Anode predecessor) {
+        this.predecessor = predecessor;
+    }
 
-	public void setG(int g) {
-		this.g = g;
-	}
+    public void setG(int g) {
+        this.g = g;
+    }
 
-	public void setH(int h) {
-		this.h = h;
-	}
+    public void setH(int h) {
+        this.h = h;
+    }
 
-	@Override
-	public boolean equals(Object other) {
-		if (Anode.class.isAssignableFrom(other.getClass())) {
-			Anode node = (Anode) other;
-			return this.row == node.row && this.col == node.col;
-		}
-		return false;
-	}
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (other instanceof Anode) {
+            Anode node = (Anode) other;
+            return this.row == node.row && this.col == node.col;
+        }
+        return false;
+    }
 
-	@Override
-	public String toString() {
-		return new StringBuilder("Anode, row:").append(this.row).append(", col:").append(this.col)
-				.append(" Predecessor: ").append(predecessor == null ? "none" : "has").toString();
-	}
+    @Override
+    public int hashCode() {
+        return Objects.hash(row, col);
+    }
+
+    @Override
+    public String toString() {
+        return new StringBuilder("Anode, row:").append(this.row).append(", col:").append(this.col)
+            .append(" Predecessor: ").append(predecessor == null ? "none" : "has").toString();
+    }
 }
