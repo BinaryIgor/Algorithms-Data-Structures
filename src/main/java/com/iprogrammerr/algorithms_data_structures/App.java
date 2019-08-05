@@ -6,8 +6,8 @@ import com.iprogrammerr.algorithms_data_structures.graph.as.AstarAlgorithm;
 public class App {
 
     public static void main(String[] args) {
-        AstarAlgorithm astar = new AstarAlgorithm(30, 30);
-        for (Anode n : astar.path(new Anode(28, 28))) {
+        AstarAlgorithm astar = new AstarAlgorithm(10, 5);
+        for (Anode n : astar.path(new Anode(0, 0), new Anode(9, 4))) {
             System.out.println(n);
         }
     }

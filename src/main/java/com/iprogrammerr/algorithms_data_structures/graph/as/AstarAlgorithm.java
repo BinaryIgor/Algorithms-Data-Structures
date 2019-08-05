@@ -1,8 +1,5 @@
 package com.iprogrammerr.algorithms_data_structures.graph.as;
 
-import com.iprogrammerr.algorithms_data_structures.initialization.Initialization;
-import com.iprogrammerr.algorithms_data_structures.initialization.StickyInitialization;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -19,16 +16,14 @@ public final class AstarAlgorithm {
     private final Anode[][] searchSpace;
     private final Set<Anode> closed;
     private final Queue<Anode> open;
-    private final Initialization<Void> initialization;
-    private Anode start;
 
     public AstarAlgorithm(int rows, int cols) {
         if (rows < 1 || cols < 1) {
             throw new RuntimeException("Rows and columns have to be a positive numbers");
         }
-        this.searchSpace = new Anode[rows][cols];
-        this.closed = new HashSet<>();
-        this.open = new PriorityQueue<>((f, s) -> {
+        searchSpace = new Anode[rows][cols];
+        closed = new HashSet<>();
+        open = new PriorityQueue<>((f, s) -> {
             if (f.f() > s.f()) {
                 return 1;
             } else if (f.f() < s.f()) {
@@ -36,63 +31,95 @@ public final class AstarAlgorithm {
             }
             return 0;
         });
-        this.initialization = new StickyInitialization<>(() -> initialization(rows, cols));
     }
 
     public AstarAlgorithm() {
         this(10, 15);
     }
 
-    private Void initialization(int rows, int cols) {
+    private void initSearchSpace(Anode start, Anode end) {
+        Random random = new Random();
+        int rows = searchSpace.length;
+        int cols = searchSpace[0].length;
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
-                this.searchSpace[i][j] = new Anode(i, j);
+                searchSpace[i][j] = new Anode(i, j);
             }
         }
-        Random random = new Random();
         for (int i = 0; i < rows; ++i) {
-            int obstacles = 1 + random.nextInt(cols);
+            int obstacles = random.nextInt(cols);
             for (int j = 0; j < obstacles; ++j) {
-                if (random.nextBoolean()) {
-                    this.searchSpace[i][j].setObstacle(true);
+                Anode node = searchSpace[i][j];
+                if (canAddObstacle(i, j) && !node.equals(start) && !node.equals(end)) {
+                    searchSpace[i][j].setObstacle(true);
                 }
             }
         }
-        this.start = this.searchSpace[random.nextInt(rows)][random.nextInt(cols)];
-        return null;
     }
 
-    public List<Anode> path(Anode end) {
-        this.initialization.value();
-        validateEnd(end);
-        System.out.println(String.format("start = %s, end = %s", this.start, end));
+    private boolean canAddObstacle(int row, int col) {
+        int upperRow = row - 1;
+        int leftCol = col - 1;
+        int rightCol = col + 1;
+        int lowerRow = row + 1;
+        return !isObstacle(upperRow, leftCol) && !isObstacle(upperRow, col) && !isObstacle(upperRow, rightCol)
+            && !isObstacle(row, leftCol) && !isObstacle(row, rightCol)
+            && !isObstacle(lowerRow, leftCol) && !isObstacle(lowerRow, col) && !isObstacle(lowerRow, rightCol);
+    }
 
-        this.start.setH(manhattanHeuristic(this.start, end));
-        this.open.add(this.start);
-        while (!this.open.isEmpty()) {
-            Anode current = this.open.poll();
-            if (current.equals(end)) {
-                end.setPredecessor(current.predecessor());
-                break;
-            }
-            this.closed.add(current);
-            for (Anode n : neighbors(current, end)) {
-                if (this.closed.contains(n)) {
-                    continue;
-                }
-                this.open.add(n);
-                n.setPredecessor(current);
-            }
-        }
+    private boolean isObstacle(int row, int col) {
+        return row < 0 || row >= searchSpace.length ||
+            col < 0 || col >= searchSpace[0].length ||
+            searchSpace[row][col].isObstacle();
+    }
+
+    public List<Anode> path(Anode start, Anode end) {
+        validateStart(start);
+        validateEnd(end);
+        initSearchSpace(start, end);
+        System.out.println(String.format("start = %s, end = %s", start, end));
+
+        open.clear();
+        closed.clear();
+        findSolution(start, end);
 
         return fromEnd(end);
     }
 
-    private void validateEnd(Anode end) {
+    private void validateStart(Anode start) {
+        validateStartOrEnd(start, true);
+    }
+
+    private void validateStartOrEnd(Anode node, boolean start) {
         int maxRow = searchSpace.length;
         int maxCol = searchSpace[0].length;
-        if (end.row() >= maxRow || end.col() >= maxCol) {
-            throw new RuntimeException(String.format("End have to be in %d, %d bounds", maxRow, maxCol));
+        if (node.row() >= maxRow || node.col() >= maxCol) {
+            throw new RuntimeException(String.format("%s have to be in %d, %d bounds", start ? "Start" : "End",
+                maxRow, maxCol));
+        }
+    }
+
+    private void validateEnd(Anode end) {
+        validateStartOrEnd(end, false);
+    }
+
+    private void findSolution(Anode start, Anode end) {
+        start.setH(manhattanHeuristic(start, end));
+        open.add(start);
+        while (!open.isEmpty()) {
+            Anode current = open.poll();
+            if (current.equals(end)) {
+                end.setPredecessor(current.predecessor());
+                break;
+            }
+            closed.add(current);
+            for (Anode n : neighbors(current, end)) {
+                if (closed.contains(n)) {
+                    continue;
+                }
+                open.add(n);
+                n.setPredecessor(current);
+            }
         }
     }
 
@@ -111,31 +138,57 @@ public final class AstarAlgorithm {
         List<Anode> neighbors = new ArrayList<>();
         int row = node.row();
         int col = node.col();
-        if (col - 1 >= 0 && !this.searchSpace[row][col - 1].isObstacle()) {
-            neighbors.add(configuredNode(this.searchSpace[row][col - 1], end, false));
-            if (row + 1 < this.searchSpace.length && !this.searchSpace[row + 1][col - 1].isObstacle()) {
-                neighbors.add(configuredNode(this.searchSpace[row + 1][col - 1], end, true));
-            }
-        }
-        if (row + 1 < this.searchSpace.length && !this.searchSpace[row + 1][col].isObstacle()) {
-            neighbors.add(configuredNode(this.searchSpace[row + 1][col], end, false));
-            if (col + 1 < this.searchSpace[0].length && !this.searchSpace[row + 1][col + 1].isObstacle()) {
-                neighbors.add(configuredNode(this.searchSpace[row + 1][col + 1], end, true));
-            }
-        }
-        if (col + 1 < this.searchSpace[0].length && !this.searchSpace[row][col + 1].isObstacle()) {
-            neighbors.add(configuredNode(this.searchSpace[row][col + 1], end, false));
-            if (row - 1 >= 0 && !this.searchSpace[row - 1][col + 1].isObstacle()) {
-                neighbors.add(configuredNode(this.searchSpace[row - 1][col + 1], end, true));
-            }
-        }
-        if (row - 1 >= 0 && !this.searchSpace[row - 1][col].isObstacle()) {
-            neighbors.add(configuredNode(this.searchSpace[row - 1][col], end, false));
-            if (col + 1 < this.searchSpace[0].length && !this.searchSpace[row - 1][col + 1].isObstacle()) {
-                neighbors.add(configuredNode(this.searchSpace[row - 1][col + 1], end, true));
-            }
-        }
+
+        considerLeftAndLower(row, col, end, neighbors);
+        considerLowerAndRight(row, col, end, neighbors);
+        considerRightAndUpper(row, col, end, neighbors);
+        considerUpperAndLeft(row, col, end, neighbors);
+
         return neighbors;
+    }
+
+    private void considerLeftAndLower(int row, int col, Anode end, List<Anode> neighbors) {
+        int leftCol = col - 1;
+        int lowerRow = row + 1;
+        if (leftCol >= 0 && !searchSpace[row][leftCol].isObstacle()) {
+            neighbors.add(configuredNode(searchSpace[row][leftCol], end, false));
+            if (lowerRow < searchSpace.length && !searchSpace[lowerRow][leftCol].isObstacle()) {
+                neighbors.add(configuredNode(searchSpace[lowerRow][leftCol], end, true));
+            }
+        }
+    }
+
+    private void considerLowerAndRight(int row, int col, Anode end, List<Anode> neighbors) {
+        int lowerRow = row + 1;
+        int rightCol = col + 1;
+        if (lowerRow < searchSpace.length && !searchSpace[lowerRow][col].isObstacle()) {
+            neighbors.add(configuredNode(searchSpace[lowerRow][col], end, false));
+            if (rightCol < searchSpace[0].length && !searchSpace[lowerRow][rightCol].isObstacle()) {
+                neighbors.add(configuredNode(searchSpace[lowerRow][rightCol], end, true));
+            }
+        }
+    }
+
+    private void considerRightAndUpper(int row, int col, Anode end, List<Anode> neighbors) {
+        int rightCol = col + 1;
+        int upperRow = row - 1;
+        if (rightCol < searchSpace[0].length && !searchSpace[row][rightCol].isObstacle()) {
+            neighbors.add(configuredNode(searchSpace[row][rightCol], end, false));
+            if (upperRow >= 0 && !searchSpace[upperRow][rightCol].isObstacle()) {
+                neighbors.add(configuredNode(searchSpace[upperRow][rightCol], end, true));
+            }
+        }
+    }
+
+    private void considerUpperAndLeft(int row, int col, Anode end, List<Anode> neighbors) {
+        int upperRow = row - 1;
+        int rightCol = col + 1;
+        if (upperRow >= 0 && !searchSpace[upperRow][col].isObstacle()) {
+            neighbors.add(configuredNode(searchSpace[upperRow][col], end, false));
+            if (rightCol < searchSpace[0].length && !searchSpace[upperRow][rightCol].isObstacle()) {
+                neighbors.add(configuredNode(searchSpace[upperRow][rightCol], end, true));
+            }
+        }
     }
 
     private Anode configuredNode(Anode node, Anode end, boolean diagonal) {

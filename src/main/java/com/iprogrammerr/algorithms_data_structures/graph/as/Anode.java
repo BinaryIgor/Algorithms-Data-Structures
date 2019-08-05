@@ -60,6 +60,14 @@ public final class Anode {
         this.h = h;
     }
 
+    public int rowDiff(Anode node) {
+        return Math.abs(row - node.row);
+    }
+
+    public int colDiff(Anode node) {
+        return Math.abs(col - node.col);
+    }
+
     @Override
     public boolean equals(Object other) {
         if (this == other) {
