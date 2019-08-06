@@ -2,60 +2,65 @@ package com.iprogrammerr.algorithms_data_structures.heuristics.meta;
 
 import java.util.Random;
 
-import com.iprogrammerr.algorithms_data_structures.initialization.Initialization;
-import com.iprogrammerr.algorithms_data_structures.initialization.StickyInitialization;
+public class Individual {
 
-public final class Individual {
+    private final int[] genes;
+    private final int[] adapted;
+    private int fitness;
 
-	private final Random random;
-	private final Initialization<int[]> genes;
-	private final int[] adapted;
-	private int fitness;
+    public Individual(int[] genes, int[] adapted) {
+        if (genes.length != adapted.length) {
+            throw new RuntimeException(String.format("Genes %d aren't of the same size as adapted %d",
+                genes.length, adapted.length));
+        }
+        this.genes = genes;
+        this.adapted = adapted;
+        this.fitness = -1;
+    }
 
-	public Individual(Random random, int[] adapted) {
-		this.random = random;
-		this.genes = new StickyInitialization<>(() -> {
-			int[] genes = new int[adapted.length];
-			for (int i = 0; i < genes.length; ++i) {
-				genes[i] = this.random.nextInt(genes.length);
-			}
-			return genes;
-		});
-		this.adapted = adapted;
-		this.fitness = -1;
-	}
+    public Individual(Random random, int[] adapted) {
+        this(randomGenes(random, adapted), adapted);
+    }
 
-	public int fitness() {
-		if (this.fitness < 0) {
-			this.fitness = 0;
-			for (int i = 0; i < this.genes.value().length; ++i) {
-				if (this.genes.value()[i] == this.adapted[i]) {
-					++this.fitness;
-				}
-			}
-		}
-		return this.fitness;
-	}
+    private static int[] randomGenes(Random random, int[] adapted) {
+        int[] genes = new int[adapted.length];
+        for (int i = 0; i < genes.length; ++i) {
+            genes[i] = random.nextInt(genes.length);
+        }
+        return genes;
+    }
 
-	public boolean isFittest() {
-		return fitness() == this.genes.value().length;
-	}
+    public int fitness() {
+        if (fitness < 0) {
+            fitness = 0;
+            for (int i = 0; i < genes.length; ++i) {
+                if (genes[i] == adapted[i]) {
+                    ++fitness;
+                }
+            }
+        }
+        return fitness;
+    }
 
-	public void mutate(int idx, int value) {
-		this.genes.value()[idx] = value;
-		this.fitness = -1;
-	}
+    public boolean isFittest() {
+        return fitness() == genes.length;
+    }
 
-	public int gene(int idx) {
-		return this.genes.value()[idx];
-	}
+    public void mutate(int idx, int value) {
+        genes[idx] = value;
+        fitness = -1;
+    }
 
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		for (int i = 0; i < this.genes.value().length; ++i) {
-			builder.append("|").append(gene(i));
-		}
-		return builder.append("|").toString();
-	}
+    public int gene(int idx) {
+        return genes[idx];
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < genes.length; ++i) {
+            builder.append("|").append(gene(i));
+        }
+        return builder.append("|").toString();
+    }
 }
