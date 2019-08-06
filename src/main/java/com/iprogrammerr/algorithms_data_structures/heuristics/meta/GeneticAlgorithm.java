@@ -6,7 +6,7 @@ import com.iprogrammerr.algorithms_data_structures.initialization.StickyInitiali
 import java.util.Arrays;
 import java.util.Random;
 
-public final class GeneticAlgorithm {
+public class GeneticAlgorithm {
 
     private static final double CROSSOVER_RATE = 0.5;
     private static final double MUTATION_RATE = CROSSOVER_RATE / 5;
@@ -28,7 +28,6 @@ public final class GeneticAlgorithm {
         this.adapted = this.base.adapted();
         this.maxGene = new StickyInitialization<>(() -> Arrays.stream(this.adapted).max().getAsInt());
     }
-
 
     private Population evolved(Population population) {
         Population toEvolve = new Population(random, adapted, population.size());
